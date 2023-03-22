@@ -8,13 +8,13 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    outDir: './build',
+    outDir: '../dist/view',
     rollupOptions: {
-      output: {
-        assetFileNames: "assets/[name][extname]",
-        entryFileNames: "assets/[name].js"
-      }
-    }
+      // output: {
+      //   assetFileNames: "assets/[name][extname]",
+      //   entryFileNames: "assets/[name].js"
+      // }
+    },
   },
   experimental: {
     renderBuiltUrl(filename: string, { hostId, hostType, type }: { hostId: string, hostType: 'js' | 'css' | 'html', type: 'public' | 'asset' }) {
