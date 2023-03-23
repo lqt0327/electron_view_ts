@@ -6,11 +6,13 @@ import Header from '../components/header/index.vue'
 import EditDialog from '../components/edit-dialog/index.vue'
 import { useCardStore } from '../store/store'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 
 const store = useCardStore()
 const { setCardData } = store
+const { nowCardData } = storeToRefs(store)
 
 // 渲染层监听不到文件的变化，需要在node层进行处理
 
@@ -119,10 +121,13 @@ const handleDelete = (key1: string, key2: string) => {
 }
 
 const dialogFormVisible = ref(false)
-const editCard = () => {
+const editCard = (cardData: QuickLinkDataItem) => {
+  setCardData(cardData)
+  console.log(cardData,'????>>>>>')
   dialogFormVisible.value = true
 }
 const closeDialog = () => {
+  console.log('测试数据')
   dialogFormVisible.value = false
 }
 
@@ -157,7 +162,7 @@ const closeDialog = () => {
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item :icon="Edit" @click="editCard">编辑</el-dropdown-item>
+                    <el-dropdown-item :icon="Edit" @click="editCard(quickLinkData[key_1][key_2])">编辑</el-dropdown-item>
                     <el-dropdown-item :icon="DeleteFilled" @click="handleDelete(key_1, key_2)">删除</el-dropdown-item>
                     <el-dropdown-item :icon="StarFilled">收藏</el-dropdown-item>
                   </el-dropdown-menu>
@@ -173,7 +178,7 @@ const closeDialog = () => {
         </template>
       </template>
     </div>
-    <EditDialog :dialogFormVisible="dialogFormVisible" @closeDialog="closeDialog" />
+    <EditDialog v-if="dialogFormVisible" :nowCardData="nowCardData" :setCardData="setCardData"  @closeDialog="closeDialog" />
   </div>
 </template>
 
@@ -249,7 +254,6 @@ const closeDialog = () => {
         cursor: pointer;
       }
 
-      .more-option-icon {}
     }
   }
 }</style>

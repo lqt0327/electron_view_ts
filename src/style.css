@@ -7,4 +7,7 @@ body {
   --background-color-default: #ffffff;
   --background-color-page: #F2F3F5;
   --background-color-card: #ffffff;
+  --background-color-list: #f5f7fa;
+
+  --text-color-active: #409eff;
 }

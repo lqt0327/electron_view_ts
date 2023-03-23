@@ -9,9 +9,9 @@ import EditDialog from '../components/edit-dialog/index.vue'
 const route = useRoute()
 
 const targetId = route.query.id
-console.log(targetId,'???Zzzzllll')
 const store = useCardStore()
-const {cardData, nowCardData} = storeToRefs(store)
+const { setCardData } = store
+const {nowCardData} = storeToRefs(store)
 
 const goBack = () => {
   history.back()
@@ -44,10 +44,10 @@ const closeDialog = () => {
 
 <template>
   <div class="about">
-    <header class="about-header">
+    <div class="about-header">
       <div class="header-back" @click="goBack"><el-icon><Back /></el-icon><div class="header-back-text">Back</div></div>
       <div class="header-title">{{ nowCardData.title }}</div>
-    </header>
+    </div>
 
     <div class="about-container">
       <div class="about-banner">
@@ -71,7 +71,7 @@ const closeDialog = () => {
       </div>
     </div>
 
-    <EditDialog :dialogFormVisible="dialogFormVisible" @closeDialog="closeDialog"/>
+    <EditDialog :setCardData="setCardData" :nowCardData="nowCardData" v-if="dialogFormVisible" @closeDialog="closeDialog"/>
   </div>
 </template>
 

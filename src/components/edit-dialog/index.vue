@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { ref, reactive, toRefs } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useCardStore } from '../../store/store'
+import UploadImage from '../upload-image/index.vue'
 
 const emits = defineEmits(['closeDialog'])
-
 const props = defineProps({
-  dialogFormVisible: Boolean,
+  setCardData: {
+    type: Function,
+    required: true,
+  },
+  nowCardData: {
+    type: Object,
+    required: true
+  },
 })
-
-const { dialogFormVisible } = toRefs(props)
 
 const formLabelWidth = '140px'
 
-const store = useCardStore()
-const { nowCardData } = storeToRefs(store)
-
-const { setCardData } = store
+const {nowCardData} = toRefs(props)
 
 const form = reactive(Object.assign({
   id: '',
@@ -29,26 +29,36 @@ const form = reactive(Object.assign({
   startLink: '',
 }, nowCardData.value))
 
+const setImageUrl = (url: string) => {
+  form.img = url
+  props.setCardData(form)
+}
+
 const submit = () => {
   // TODO: 增加校验逻辑
   let tmp = Object.assign({}, nowCardData.value)
-  setCardData(form)
+  props.setCardData(form)
   window.electronAPI.updateQuickLinkData(nowCardData.value.id, JSON.stringify(form)).catch((err: any) => {
     console.error('更新卡片出错：', err)
-    setCardData(tmp)
+    props.setCardData(tmp)
   })
   emits('closeDialog', 1)
+}
+
+const onCloseDialog = () =>{
+  emits('closeDialog')
 }
 </script>
 
 <template>
-  <el-dialog :model-value="dialogFormVisible" title="编辑内容" width="500" :before-close="onCloseDialog">
+  <el-dialog :model-value="true" title="编辑内容" width="500" :before-close="onCloseDialog">
     <el-form :model="form">
       <el-form-item label="标题" :label-width="formLabelWidth">
         <el-input v-model="form.title" autocomplete="off" />
       </el-form-item>
       <el-form-item label="卡片封面" :label-width="formLabelWidth">
         <el-input v-model="form.img" autocomplete="off" />
+        <UploadImage :imageUrl="form.img" :setImageUrl="setImageUrl" />
       </el-form-item>
       <el-form-item label="厂商" :label-width="formLabelWidth">
         <el-input v-model="form.factory" autocomplete="off" />
@@ -77,4 +87,5 @@ const submit = () => {
   </el-dialog>
 </template>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+</style>
