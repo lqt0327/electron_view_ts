@@ -21,7 +21,7 @@ window.electronAPI.getFileName(imageUrl.value).then((res: any)=>{
 })
 
 const handleRemove = (e: any) => {
-  console.log('删除----')
+  props.setImageUrl('')
   e.stopPropagation()
 }
 
@@ -31,9 +31,7 @@ const handlePreview = () => {
 
 const handleSelect = ()=>{
   window.electronAPI.selectImage().then((res: any)=>{
-    console.log(res,'???---')
     if(res.status.code === 0) {
-      console.log(res,'?????Zzzz')
       if(res.result) {
         console
         props.setImageUrl(res.result.path)
@@ -51,7 +49,7 @@ const handleSelect = ()=>{
   <div class="upload-image">
     <div class="upload-image-wrap">
       <el-button type="primary" @click="handleSelect">选择图片</el-button>
-      <div class="image-list">
+      <div class="image-list" v-if="imageUrl">
         <div class="image-list-wrap" @click="handlePreview">
           <el-icon class="image-file"><Document /></el-icon>
           <div class="image-name">{{ imageTitle }}</div>
@@ -61,9 +59,11 @@ const handleSelect = ()=>{
     </div>
     <el-dialog
       v-model="previewVisible"
+      width="800"
       title="预览"
+      append-to-body
     >
-      <img w-full :src="imageUrl" alt="Preview Image" v-if="imageUrl" />
+      <img class="image-preview" :src="imageUrl" alt="Preview Image" v-if="imageUrl" />
       <span v-else>未选择图片</span>
     </el-dialog>
   </div>
@@ -113,5 +113,8 @@ const handleSelect = ()=>{
       }
     }
   }
+}
+.image-preview {
+  width: 100%;
 }
 </style>

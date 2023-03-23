@@ -31,7 +31,6 @@ const form = reactive(Object.assign({
 
 const setImageUrl = (url: string) => {
   form.img = url
-  props.setCardData(form)
 }
 
 const submit = () => {
