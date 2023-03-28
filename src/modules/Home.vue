@@ -123,11 +123,9 @@ const handleDelete = (key1: string, key2: string) => {
 const dialogFormVisible = ref(false)
 const editCard = (cardData: QuickLinkDataItem) => {
   setCardData(cardData)
-  console.log(cardData,'????>>>>>')
   dialogFormVisible.value = true
 }
 const closeDialog = () => {
-  console.log('测试数据')
   dialogFormVisible.value = false
 }
 
@@ -178,7 +176,14 @@ const closeDialog = () => {
         </template>
       </template>
     </div>
-    <EditDialog v-if="dialogFormVisible" :nowCardData="nowCardData" :setCardData="setCardData"  @closeDialog="closeDialog" />
+    <EditDialog 
+      v-if="dialogFormVisible" 
+      :nowCardData="nowCardData" 
+      :setCardData="setCardData"  
+      type="edit"
+      @closeDialog="closeDialog" 
+      @setCurrentListData="setCurrentListData" 
+    />
   </div>
 </template>
 

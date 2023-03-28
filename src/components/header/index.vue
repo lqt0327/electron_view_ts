@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Search, CloseBold } from '@element-plus/icons-vue'
+import EditDialog from '../edit-dialog/index.vue'
 import { ref } from 'vue'
+import { useCardStore } from '../../store/store'
+import { storeToRefs } from 'pinia'
+
+const store = useCardStore()
+const { setCardData } = store
+const { nowCardData } = storeToRefs(store)
 
 const emits = defineEmits(['setSearchListData'])
 
@@ -11,13 +18,35 @@ const props = defineProps({
     }
 })
 
-const selectImage = async ()=> {
+const dialogFormVisible = ref(false)
+
+const closeDialog = () => {
+  dialogFormVisible.value = false
+}
+
+const selectApp = async ()=> {
     if(window.electronAPI) {
-        await window.electronAPI.openFile('image')
+        await window.electronAPI.openFile('exe')
         props.setCurrentListData()
     }else {
         ElMessage('未知异常，请稍后重试～')
     }
+}
+
+const editCard = () => {
+    // TODO: id需要主线程中调用函数生成，
+
+    setCardData({
+        id: '',
+        title: '',
+        img: '',
+        factory: '',
+        createTime: (new Date()).getFullYear(),
+        banner: '',
+        about: '',
+        startLink: '',
+    })
+    dialogFormVisible.value = true
 }
 
 const options_sort = [
@@ -94,12 +123,14 @@ const keywords = ref('')
             </div>
         </div>
         <div class="header-options">
-            <el-button type="primary" round @click="selectImage">扫描文件</el-button>
-            <el-button type="primary">Primary22</el-button>
+            <el-button type="primary" round @click="selectApp">扫描文件</el-button>
+            <el-button type="primary" round @click="editCard">手动添加</el-button>
         </div>
+        <div class="options-tips">自动扫描所选目录下的所有exe文件，生成快捷启动卡片</div>
         <div class="header-options" v-if="keywords">
             <el-button type="primary" round @click="closeSearch">{{keywords}}&nbsp;<el-icon><CloseBold /></el-icon></el-button>
         </div>
+        <EditDialog v-if="dialogFormVisible" :nowCardData="nowCardData" :setCardData="setCardData"  @closeDialog="closeDialog" @setCurrentListData="props.setCurrentListData" type="create" />
     </div>
 </template>
 
@@ -122,6 +153,13 @@ const keywords = ref('')
     }
     .header-options {
         margin-top: 20px;
+    }
+    .options-tips {
+        font-size: 12px;
+        color: #606266;
+        margin-top: 7px;
+        height: 20px;
+        line-height: 20px;
     }
 }
 </style>

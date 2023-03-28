@@ -7,7 +7,7 @@ export const useCardStore = defineStore('cardContent', {
             title: '',
             img: '',
             factory: '',
-            createTime: Date.now(),
+            createTime: (new Date()).getFullYear(),
             banner: '',
             about: '',
             startLink: '',

@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./components/search/index.vue')['default']
+    StartLink: typeof import('./components/start-link/index.vue')['default']
     UploadImage: typeof import('./components/upload-image/index.vue')['default']
   }
 }

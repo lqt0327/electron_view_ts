@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, toRefs } from 'vue'
-import type { Ref} from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Close } from '@element-plus/icons-vue'
 
@@ -16,11 +15,11 @@ const imageTitle = ref('')
 
 const { imageUrl } = toRefs(props)
 
-window.electronAPI.getFileName(imageUrl.value).then((res: any)=>{
+window.electronAPI.getFileName(imageUrl.value).then((res: string)=>{
   imageTitle.value = res
 })
 
-const handleRemove = (e: any) => {
+const handleRemove = (e: Event) => {
   props.setImageUrl('')
   e.stopPropagation()
 }
@@ -33,7 +32,6 @@ const handleSelect = ()=>{
   window.electronAPI.selectImage().then((res: any)=>{
     if(res.status.code === 0) {
       if(res.result) {
-        console
         props.setImageUrl(res.result.path)
         imageTitle.value = res.result.fName
       }

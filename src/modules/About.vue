@@ -23,7 +23,13 @@ const startEXE = () => {
     return
   }
   if(nowCardData.value.startLink) {
-    window.electronAPI.openEXE(nowCardData.value.startLink)
+    window.electronAPI.openApp(nowCardData.value.startLink).catch((err: Error)=>{
+      console.error('程序启动异常: ', err)
+      ElMessage({
+        type: 'info',
+        message: '程序启动异常，请检查启动链接',
+      })
+    })
   }else {
     ElMessage({
       type: 'info',
@@ -71,7 +77,7 @@ const closeDialog = () => {
       </div>
     </div>
 
-    <EditDialog :setCardData="setCardData" :nowCardData="nowCardData" v-if="dialogFormVisible" @closeDialog="closeDialog"/>
+    <EditDialog :setCardData="setCardData" :nowCardData="nowCardData" v-if="dialogFormVisible" @closeDialog="closeDialog" type="edit"/>
   </div>
 </template>
 
