@@ -18,7 +18,7 @@ const { startLink } = toRefs(props)
 
 const linkTitle = ref('')
 
-window.electronAPI.getFileName(startLink.value).then((res: string)=>{
+window.electronAPI.pathBasename(startLink.value).then((res: string)=>{
   linkTitle.value = res
 })
 

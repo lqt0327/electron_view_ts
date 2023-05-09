@@ -15,7 +15,7 @@ const imageTitle = ref('')
 
 const { imageUrl } = toRefs(props)
 
-window.electronAPI.getFileName(imageUrl.value).then((res: string)=>{
+window.electronAPI.pathBasename(imageUrl.value).then((res: string)=>{
   imageTitle.value = res
 })
 

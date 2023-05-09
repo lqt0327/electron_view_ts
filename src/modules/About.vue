@@ -59,8 +59,7 @@ const closeDialog = () => {
       <div class="about-banner">
         <img class="about-banner-image" :src="nowCardData.banner" alt="">
       </div>
-      <div class="about-desc">
-        {{ nowCardData.about }}
+      <div class="about-desc" v-html="nowCardData.about">
       </div>
       <div class="about-options">
         <el-button 
@@ -112,6 +111,9 @@ const closeDialog = () => {
   .header-title {
     padding-left: 15px;
     font-size: 18px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 }
 .about-container {

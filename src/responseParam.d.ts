@@ -9,7 +9,7 @@ interface QuickLinkDataItem {
   title: string;
   img: string;
   factory: string;
-  createTime: number;
+  createTime: string;
   banner: string;
   about: string;
   startLink: string;
