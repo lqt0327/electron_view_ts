@@ -25,8 +25,9 @@ const quickSort = (arr: any[]): any[] => {
  * @param sort 
  */
 const formatListData = (data: QuickLinkData, sort = "default") => {
+  if(!data || !Object.keys(data).length) return []
   let res = []
-  if(sort === 'default') {
+  if(sort === 'default' || sort === 'collect') {
     let arr = Object.values(data.default)
     res = quickSort(arr)
   }else if (sort === 'time') {

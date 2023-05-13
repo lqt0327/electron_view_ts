@@ -5,7 +5,7 @@ import Header from '../components/header/index.vue'
 import EditDialog from '../components/edit-dialog/index.vue'
 import MoreLineList from './application/more-line-list/index.vue'
 import OneLineList from './application/one-line-list/index.vue'
-import { useCardStore } from '../store/store'
+import { useCardStore, useOptionStore } from '../store/store'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { formatListData } from '../utils/util'
@@ -15,6 +15,8 @@ const router = useRouter()
 const store = useCardStore()
 const { setCardData } = store
 const { nowCardData } = storeToRefs(store)
+
+const store_option = useOptionStore()
 
 const headerRef = ref()
 
@@ -56,7 +58,7 @@ const setSearchListData = async (list_key: Array<string>) => {
 }
 
 onMounted(async () => {
-  setCurrentListData(store.sortType)
+  setCurrentListData(store_option.sortType)
 })
 
 const goToAbout = (data: QuickLinkDataItem) => {
@@ -120,7 +122,8 @@ const closeDialog = () => {
       :quickLinkData="quickLinkData"
       :goToAbout="goToAbout" 
       :editCard="editCard" 
-      :handleDelete="handleDelete" 
+      :handleDelete="handleDelete"
+      :setCurrentListData="setCurrentListData"
     />
     <EditDialog 
       v-if="dialogFormVisible" 

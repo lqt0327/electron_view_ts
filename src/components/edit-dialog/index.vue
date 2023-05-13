@@ -2,6 +2,7 @@
 import { ref, reactive, toRefs, computed } from 'vue'
 import UploadImage from '../upload-image/index.vue'
 import StartLink from '../start-link/index.vue'
+import { useOptionStore } from '../../store/store'
 
 const emits = defineEmits(['closeDialog', 'setCurrentListData'])
 const props = defineProps({
@@ -23,6 +24,8 @@ const formLabelWidth = '140px'
 
 const {nowCardData, type} = toRefs(props)
 
+const store_option = useOptionStore()
+
 const dialogTitle = computed(()=>{
   if(type.value === 'create') {
     return '新建内容'
@@ -42,6 +45,7 @@ const form = reactive(Object.assign({
   banner: '',
   about: '',
   startLink: '',
+  title_cn: ''
 }, nowCardData.value))
 
 const setImageUrl = (url: string) => {
@@ -64,7 +68,7 @@ const submit = async () => {
     window.electronAPI.addQuickLinkData(JSON.stringify(form)).catch((err: Error)=>{
       console.log('新增卡片出错：', err)
     })
-    emits('setCurrentListData', 'time')
+    emits('setCurrentListData', store_option.sortType)
     onCloseDialog()
   }
 
@@ -76,7 +80,7 @@ const submit = async () => {
       console.error('更新卡片出错：', err)
       props.setCardData(pre)
     })
-    emits('setCurrentListData', 'time')
+    emits('setCurrentListData', store_option.sortType)
     onCloseDialog()
   }
   
@@ -91,7 +95,7 @@ const onCloseDialog = () =>{
   <el-dialog :model-value="true" v-bind:title="dialogTitle" width="500" :before-close="onCloseDialog">
     <el-form :model="form">
       <el-form-item label="标题" :label-width="formLabelWidth">
-        <el-input v-model="form.title" autocomplete="off" />
+        <el-input v-model="form.title_cn" autocomplete="off" />
       </el-form-item>
       <el-form-item label="卡片封面" :label-width="formLabelWidth">
         <el-input v-model="form.img" autocomplete="off" />

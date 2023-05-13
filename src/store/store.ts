@@ -11,10 +11,11 @@ export const useCardStore = defineStore('cardContent', {
             banner: '',
             about: '',
             startLink: '',
+            src: '',
+            tags: [''],
+            title_cn: '',
+            collect: 0,
         },
-        sortType: 'default',
-        classType: 'default',
-        keywords: '',
     }),
     getters: {
         nowCardData: (state) => {
@@ -31,4 +32,12 @@ export const useCardStore = defineStore('cardContent', {
             localStorage.setItem('cardData', JSON.stringify(data))
         },
     }
+})
+
+export const useOptionStore = defineStore('OptionStore', {
+    state: ()=> ({ 
+        sortType: 'time',
+        classType: 'default',
+        keywords: '',
+    }),
 })

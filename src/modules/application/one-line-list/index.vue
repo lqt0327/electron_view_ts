@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, toRefs, watch } from 'vue'
 import type { PropType } from 'vue'
-import { MoreFilled, Edit, StarFilled, DeleteFilled, Star } from '@element-plus/icons-vue'
+import { MoreFilled, Edit, StarFilled, DeleteFilled, Star, Position } from '@element-plus/icons-vue'
+import { useOptionStore } from '../../../store/store'
 
 const props = defineProps({
   quickLinkData: {
@@ -19,19 +20,55 @@ const props = defineProps({
   handleDelete: {
     type: Function,
     required: true
+  },
+  setCurrentListData: {
+    type: Function,
+    required: true
   }
 })
 
 const { quickLinkData } = toRefs(props)
 
+const store_option = useOptionStore()
+
 const collectCard = (cardData: QuickLinkDataItem) => {
-  window.electronAPI.collect(JSON.stringify(cardData))
-    .then((res: any) => {
-      ElMessage('已收藏')
+  if(!cardData.collect) {
+    window.electronAPI.collect(JSON.stringify(cardData))
+      .then((res: any) => {
+        ElMessage('已收藏')
+        props.setCurrentListData(store_option.sortType)
+      })
+      .catch((err: any) => {
+        console.error('卡片收藏错误: ', err)
+      })
+  }else {
+    window.electronAPI.cancelCollect(cardData.id)
+    .then((res: any)=>{
+      ElMessage('已经取消收藏')
+      props.setCurrentListData(store_option.sortType)
     })
-    .catch((err: any) => {
-      console.error('卡片删除错误: ', err)
+    .catch((err: any)=>{
+      console.error('卡片取消收藏错误: ', err)
     })
+  }
+  
+}
+
+const startEXE = (data: QuickLinkDataItem) => {
+  if(data.startLink) {
+    window.electronAPI.openApp(data.startLink).catch((err: Error)=>{
+      console.error('程序启动异常: ', err)
+      ElMessage({
+        type: 'info',
+        message: '程序启动异常，请检查启动链接',
+      })
+    })
+  }else {
+    ElMessage({
+      type: 'info',
+      message: '程序启动链接缺失',
+    })
+  }
 }
 
 </script>
@@ -42,10 +79,17 @@ const collectCard = (cardData: QuickLinkDataItem) => {
       <div class="home-wrap">
         <el-image class="home-wrap-image" :src="data.img" fit="cover" @click="goToAbout(data)" />
         <div class="home-wrap-content">
-          <div class="home-content-title" @click="goToAbout(data)">{{ data.title }}</div>
+          <div class="home-content-title" @click="goToAbout(data)">{{ data.title_cn }}</div>
           <div class="home-content-factory">厂商：{{ data.factory }}</div>
           <div class="home-content-createTime">时间：{{ data.createTime }}</div>
           <div class="home-wrap-option">
+            <div class="option-start" @click="startEXE(data)">
+              <el-icon size="20">
+                <Position />
+              </el-icon>
+              <span class="label-text">启动</span>
+            </div>
+            <span class="option-line">|</span>
             <div class="option-edit" @click="editCard(data)">
               <el-icon size="20">
                 <Edit />
@@ -55,7 +99,8 @@ const collectCard = (cardData: QuickLinkDataItem) => {
             <span class="option-line">|</span>
             <div class="option-star" @click="collectCard(data)">
               <el-icon size="20">
-                <Star />
+                <StarFilled v-if="data.collect" />
+                <Star v-else />
               </el-icon>
               <span class="label-text">收藏</span>
             </div>
@@ -129,6 +174,7 @@ const collectCard = (cardData: QuickLinkDataItem) => {
     width: 500px;
     color: var(--text-color-active);
 
+    .option-start,
     .option-edit,
     .option-delete,
     .option-star {

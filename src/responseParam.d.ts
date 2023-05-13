@@ -13,6 +13,10 @@ interface QuickLinkDataItem {
   banner: string;
   about: string;
   startLink: string;
+  src: string;
+  tags: string[];
+  title_cn: string;
+  collect: number
 }
 
 declare namespace ResponseParam {

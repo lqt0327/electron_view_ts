@@ -18,10 +18,6 @@ const goBack = () => {
 }
 
 const startEXE = () => {
-  if(nowCardData.value.startLink.includes('http://') || nowCardData.value.startLink.includes('https://')) {
-    window.open(nowCardData.value.startLink, '_self')
-    return
-  }
   if(nowCardData.value.startLink) {
     window.electronAPI.openApp(nowCardData.value.startLink).catch((err: Error)=>{
       console.error('程序启动异常: ', err)
@@ -52,7 +48,7 @@ const closeDialog = () => {
   <div class="about">
     <div class="about-header">
       <div class="header-back" @click="goBack"><el-icon><Back /></el-icon><div class="header-back-text">Back</div></div>
-      <div class="header-title">{{ nowCardData.title }}</div>
+      <div class="header-title">{{ nowCardData.title_cn }}</div>
     </div>
 
     <div class="about-container">

@@ -2,12 +2,14 @@
 import { Search, CloseBold } from '@element-plus/icons-vue'
 import EditDialog from '../edit-dialog/index.vue'
 import { ref } from 'vue'
-import { useCardStore } from '../../store/store'
+import { useCardStore, useOptionStore } from '../../store/store'
 import { storeToRefs } from 'pinia'
 
-const store = useCardStore()
-const { setCardData } = store
-const { nowCardData } = storeToRefs(store)
+const store_card = useCardStore()
+const { setCardData } = store_card
+const { nowCardData } = storeToRefs(store_card)
+
+const store_option = useOptionStore()
 
 const emits = defineEmits(['setSearchListData'])
 
@@ -27,7 +29,7 @@ const closeDialog = () => {
 const selectApp = async () => {
   if (window.electronAPI) {
     await window.electronAPI.openFile('exe')
-    props.setCurrentListData(store.sortType)
+    props.setCurrentListData(store_option.sortType)
   } else {
     ElMessage('未知异常，请稍后重试～')
   }
@@ -35,17 +37,7 @@ const selectApp = async () => {
 
 const editCard = () => {
   // TODO: id需要主线程中调用函数生成，
-
-  setCardData({
-    id: '',
-    title: '',
-    img: '',
-    factory: '',
-    createTime: (new Date()).getFullYear().toString(),
-    banner: '',
-    about: '',
-    startLink: '',
-  })
+  store_card.$reset()
   dialogFormVisible.value = true
 }
 
@@ -61,6 +53,10 @@ const options_sort = [
   {
     value: 'default',
     label: '默认',
+  },
+  {
+    value: 'collect',
+    label: '收藏夹',
   },
 ]
 
@@ -84,15 +80,15 @@ const handleSearch = (value: string) => {
 }
 
 const closeSearch = () => {
-  props.setCurrentListData(store.sortType)
-  store.keywords = ''
+  props.setCurrentListData(store_option.sortType)
+  store_option.keywords = ''
 }
 
 const autoReadData = () => {
   window.electronAPI.autoWriteListData().then((res: any)=>{
     if(res.status.code === 0) {
       if(res.result) {
-        props.setCurrentListData(store.sortType)
+        props.setCurrentListData(store_option.sortType)
       }
     }else {
       ElMessage.error(res.status.message || 'unknown error')
@@ -108,13 +104,7 @@ const handleSort = (val: string) => {
  * 分类 选择
  */
 const handleClass = (val: string) => {
-  window.electronAPI.getQuickLinkData(val).then((res: any)=>{
-    if(res.status.code === 0) {
-      if(res.result) {
-        props.setCurrentListData(val)
-      }
-    }
-  })
+  props.setCurrentListData(val)
 }
 
 /**
@@ -130,15 +120,15 @@ defineExpose({
   <div class="header">
     <div class="header-select">
       <div class="header-filter">
-        <el-select v-model="store.sortType" class="m-2" placeholder="Select" placement="bottom" @change="handleSort">
+        <el-select v-model="store_option.sortType" class="m-2" placeholder="Select" placement="bottom" @change="handleSort">
           <el-option v-for="item in options_sort" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
-        <el-select v-model="store.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
+        <!-- <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
           <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
+        </el-select> -->
       </div>
       <div class="search">
-        <el-input v-model="store.keywords" placeholder="请输入" :prefix-icon="Search" @change="handleSearch" />
+        <el-input v-model="store_option.keywords" placeholder="请输入" :prefix-icon="Search" @change="handleSearch" />
       </div>
     </div>
     <div class="header-options">
@@ -147,8 +137,8 @@ defineExpose({
       <el-button type="primary" round @click="autoReadData">JSON写入</el-button>
     </div>
     <div class="options-tips">自动扫描所选目录下的所有exe文件，生成快捷启动卡片</div>
-    <div class="header-options" v-if="store.keywords">
-      <el-button type="primary" round @click="closeSearch">{{ store.keywords }}&nbsp;<el-icon>
+    <div class="header-options" v-if="store_option.keywords">
+      <el-button type="primary" round @click="closeSearch">{{ store_option.keywords }}&nbsp;<el-icon>
           <CloseBold />
         </el-icon></el-button>
     </div>
