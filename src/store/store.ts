@@ -7,11 +7,14 @@ export const useCardStore = defineStore('cardContent', {
             title: '',
             img: '',
             factory: '',
-            createTime: (new Date()).getFullYear(),
+            createTime: '',
             banner: '',
             about: '',
             startLink: '',
-        } 
+        },
+        sortType: 'default',
+        classType: 'default',
+        keywords: '',
     }),
     getters: {
         nowCardData: (state) => {
@@ -26,6 +29,6 @@ export const useCardStore = defineStore('cardContent', {
         setCardData(data: QuickLinkDataItem) {
             this.cardData = Object.assign({},data)
             localStorage.setItem('cardData', JSON.stringify(data))
-        }
+        },
     }
 })

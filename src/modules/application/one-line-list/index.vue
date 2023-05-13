@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { toRefs } from 'vue'
+import { onMounted, toRefs, watch } from 'vue'
 import type { PropType } from 'vue'
 import { MoreFilled, Edit, StarFilled, DeleteFilled, Star } from '@element-plus/icons-vue'
 
 const props = defineProps({
   quickLinkData: {
     type: Object,
-    required: true
-  },
-  dataKeyBySort: {
-    type: Array as PropType<string[]>,
     required: true
   },
   goToAbout: {
@@ -26,55 +22,53 @@ const props = defineProps({
   }
 })
 
-const { quickLinkData, dataKeyBySort } = toRefs(props)
+const { quickLinkData } = toRefs(props)
 
 const collectCard = (cardData: QuickLinkDataItem) => {
   window.electronAPI.collect(JSON.stringify(cardData))
-  .then((res: any)=>{
-    ElMessage('已收藏')
-  })
-  .catch((err:any) => {
-    console.error('卡片删除错误: ', err)
-  })
+    .then((res: any) => {
+      ElMessage('已收藏')
+    })
+    .catch((err: any) => {
+      console.error('卡片删除错误: ', err)
+    })
 }
 
 </script>
 
 <template>
   <div class="home-container">
-    <template v-for="key_1 in dataKeyBySort">
-      <template v-for="key_2 in Object.keys(quickLinkData[key_1])">
-        <div class="home-wrap">
-          <el-image class="home-wrap-image" :src="quickLinkData[key_1][key_2].img" fit="cover" @click="goToAbout(quickLinkData[key_1][key_2])" />
-          <div class="home-wrap-content">
-            <div class="home-content-title" @click="goToAbout(quickLinkData[key_1][key_2])">{{ quickLinkData[key_1][key_2].title }}</div>
-            <div class="home-content-factory">厂商：{{ quickLinkData[key_1][key_2].factory }}</div>
-            <div class="home-content-createTime">时间：{{ quickLinkData[key_1][key_2].createTime }}</div>
-            <div class="home-wrap-option">
-              <div class="option-edit" @click="editCard(quickLinkData[key_1][key_2])">
-                <el-icon size="20">
-                  <Edit />
-                </el-icon>
-                <span class="label-text">编辑</span>
-              </div>
-              <span class="option-line">|</span>
-              <div class="option-star" @click="collectCard(quickLinkData[key_1][key_2])">
-                <el-icon size="20">
-                  <Star />
-                </el-icon>
-                <span class="label-text">收藏</span>
-              </div>
-              <span class="option-line">|</span>
-              <div class="option-delete" @click="handleDelete(key_1, key_2)">
-                <el-icon size="20">
-                  <DeleteFilled />
-                </el-icon>
-                <span class="label-text">删除</span>
-              </div>
+    <template v-for="(data, index) in quickLinkData">
+      <div class="home-wrap">
+        <el-image class="home-wrap-image" :src="data.img" fit="cover" @click="goToAbout(data)" />
+        <div class="home-wrap-content">
+          <div class="home-content-title" @click="goToAbout(data)">{{ data.title }}</div>
+          <div class="home-content-factory">厂商：{{ data.factory }}</div>
+          <div class="home-content-createTime">时间：{{ data.createTime }}</div>
+          <div class="home-wrap-option">
+            <div class="option-edit" @click="editCard(data)">
+              <el-icon size="20">
+                <Edit />
+              </el-icon>
+              <span class="label-text">编辑</span>
+            </div>
+            <span class="option-line">|</span>
+            <div class="option-star" @click="collectCard(data)">
+              <el-icon size="20">
+                <Star />
+              </el-icon>
+              <span class="label-text">收藏</span>
+            </div>
+            <span class="option-line">|</span>
+            <div class="option-delete" @click="handleDelete(index, data)">
+              <el-icon size="20">
+                <DeleteFilled />
+              </el-icon>
+              <span class="label-text">删除</span>
             </div>
           </div>
         </div>
-      </template>
+      </div>
     </template>
   </div>
 </template>
@@ -87,6 +81,7 @@ const collectCard = (cardData: QuickLinkDataItem) => {
   border-radius: 5px;
   margin-top: 20px;
 }
+
 .home-wrap {
   position: relative;
   width: 100%;
@@ -112,6 +107,7 @@ const collectCard = (cardData: QuickLinkDataItem) => {
   font-size: 14px;
   line-height: 22px;
   position: relative;
+
   .home-content-title {
     font-size: 22px;
     font-weight: 600;
@@ -124,6 +120,7 @@ const collectCard = (cardData: QuickLinkDataItem) => {
     overflow: hidden;
     cursor: pointer;
   }
+
   .home-wrap-option {
     position: absolute;
     bottom: 10px;
@@ -131,16 +128,20 @@ const collectCard = (cardData: QuickLinkDataItem) => {
     align-items: center;
     width: 500px;
     color: var(--text-color-active);
-    .option-edit, .option-delete, .option-star {
+
+    .option-edit,
+    .option-delete,
+    .option-star {
       display: flex;
       cursor: pointer;
     }
+
     .option-line {
       margin: 0 10px;
     }
+
     .label-text {
       margin-left: 5px;
     }
   }
-}
-</style>
+}</style>

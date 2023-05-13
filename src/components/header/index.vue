@@ -27,7 +27,7 @@ const closeDialog = () => {
 const selectApp = async () => {
   if (window.electronAPI) {
     await window.electronAPI.openFile('exe')
-    props.setCurrentListData()
+    props.setCurrentListData(store.sortType)
   } else {
     ElMessage('未知异常，请稍后重试～')
   }
@@ -54,10 +54,10 @@ const options_sort = [
     value: 'time',
     label: '时间',
   },
-  {
-    value: 'factory',
-    label: '厂商',
-  },
+  // {
+  //   value: 'factory',
+  //   label: '厂商',
+  // },
   {
     value: 'default',
     label: '默认',
@@ -84,20 +84,15 @@ const handleSearch = (value: string) => {
 }
 
 const closeSearch = () => {
-  props.setCurrentListData()
-  keywords.value = ''
+  props.setCurrentListData(store.sortType)
+  store.keywords = ''
 }
-
-const sortType = ref('default')
-const classType = ref('default')
-const keywords = ref('')
 
 const autoReadData = () => {
   window.electronAPI.autoWriteListData().then((res: any)=>{
     if(res.status.code === 0) {
-      console.log(res,'????----')
       if(res.result) {
-        props.setCurrentListData()
+        props.setCurrentListData(store.sortType)
       }
     }else {
       ElMessage.error(res.status.message || 'unknown error')
@@ -105,10 +100,15 @@ const autoReadData = () => {
   })
 }
 
+const handleSort = (val: string) => {
+  props.setCurrentListData(val)
+}
+
+/**
+ * 分类 选择
+ */
 const handleClass = (val: string) => {
-  console.log(val, ';;;;;')
   window.electronAPI.getQuickLinkData(val).then((res: any)=>{
-    console.log(res,'?????[[[]]]')
     if(res.status.code === 0) {
       if(res.result) {
         props.setCurrentListData(val)
@@ -117,21 +117,28 @@ const handleClass = (val: string) => {
   })
 }
 
+/**
+ * 需要暴露给父组件的属性
+ */
+defineExpose({
+  // sortType
+})
+
 </script>
 
 <template>
   <div class="header">
     <div class="header-select">
       <div class="header-filter">
-        <el-select v-model="sortType" class="m-2" placeholder="Select" placement="bottom">
+        <el-select v-model="store.sortType" class="m-2" placeholder="Select" placement="bottom" @change="handleSort">
           <el-option v-for="item in options_sort" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
-        <el-select v-model="classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
+        <el-select v-model="store.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
           <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="search">
-        <el-input v-model="keywords" placeholder="请输入" :prefix-icon="Search" @change="handleSearch" />
+        <el-input v-model="store.keywords" placeholder="请输入" :prefix-icon="Search" @change="handleSearch" />
       </div>
     </div>
     <div class="header-options">
@@ -140,13 +147,19 @@ const handleClass = (val: string) => {
       <el-button type="primary" round @click="autoReadData">JSON写入</el-button>
     </div>
     <div class="options-tips">自动扫描所选目录下的所有exe文件，生成快捷启动卡片</div>
-    <div class="header-options" v-if="keywords">
-      <el-button type="primary" round @click="closeSearch">{{ keywords }}&nbsp;<el-icon>
+    <div class="header-options" v-if="store.keywords">
+      <el-button type="primary" round @click="closeSearch">{{ store.keywords }}&nbsp;<el-icon>
           <CloseBold />
         </el-icon></el-button>
     </div>
-    <EditDialog v-if="dialogFormVisible" :nowCardData="nowCardData" :setCardData="setCardData" @closeDialog="closeDialog"
-      @setCurrentListData="props.setCurrentListData" type="create" />
+    <EditDialog 
+      v-if="dialogFormVisible" 
+      :nowCardData="nowCardData" 
+      :setCardData="setCardData" 
+      @closeDialog="closeDialog"
+      @setCurrentListData="props.setCurrentListData" 
+      type="create" 
+    />
   </div>
 </template>
 

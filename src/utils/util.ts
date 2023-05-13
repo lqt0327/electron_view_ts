@@ -1,0 +1,45 @@
+/**
+ * 针对 QuickLinkData 进行快排
+ * @param arr 
+ */
+const quickSort = (arr: any[]): any[] => {
+  if(arr.length <= 1) return arr;
+  let left = []
+  let right = []
+  let cur = arr.shift()
+  let t1 = cur.createTime.replace(/(-)*/g, '')
+  for(let v of arr) {
+    let t2 = v.createTime.replace(/(-)*/g, '')
+    if(t2 > t1) {
+      right.push(v)
+    }else {
+      left.push(v)
+    }
+  }
+  return quickSort(left).concat(cur, quickSort(right))
+}
+
+/**
+ * 格式化数据，对数据进行 时间排序+扁平化 处理
+ * @param data 
+ * @param sort 
+ */
+const formatListData = (data: QuickLinkData, sort = "default") => {
+  let res = []
+  if(sort === 'default') {
+    let arr = Object.values(data.default)
+    res = quickSort(arr)
+  }else if (sort === 'time') {
+    let arr = Object.keys(data).sort((a,b)=> Number(b) - Number(a))
+    for(let v of arr) {
+      let tmp = Object.values(data[v])
+      let q = quickSort(tmp)
+      res.push(...q)
+    }
+  }
+  return res
+}
+
+export {
+  formatListData
+}

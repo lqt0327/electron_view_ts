@@ -8,10 +8,6 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  dataKeyBySort: {
-    type: Array as PropType<string[]>,
-    required: true
-  },
   goToAbout: {
     type: Function,
     required: true
@@ -26,24 +22,33 @@ const props = defineProps({
   }
 })
 
-const { quickLinkData, dataKeyBySort } = toRefs(props)
+const { quickLinkData } = toRefs(props)
+
+const collectCard = (cardData: QuickLinkDataItem) => {
+  window.electronAPI.collect(JSON.stringify(cardData))
+    .then((res: any) => {
+      ElMessage('已收藏')
+    })
+    .catch((err: any) => {
+      console.error('卡片删除错误: ', err)
+    })
+}
 
 </script>
 
 <template>
   <div class="home-container">
-    <template v-for="key_1 in dataKeyBySort">
-      <template v-for="key_2 in Object.keys(quickLinkData[key_1])">
-        <div class="home-wrap" v-if="quickLinkData[key_1][key_2].img">
-          <el-image class="home-wrap-image" :src="quickLinkData[key_1][key_2].img" fit="cover"
-            @click="goToAbout(quickLinkData[key_1][key_2])" />
+      <template v-for="(data, index) in quickLinkData">
+        <div class="home-wrap" v-if="data.img">
+          <el-image class="home-wrap-image" :src="data.img" fit="cover"
+            @click="goToAbout(data)" />
           <div class="home-wrap-content">
-            <h3 class="home-wrap-content__item title">{{ quickLinkData[key_1][key_2].title }}</h3>
-            <p class="home-wrap-content__item factory">{{ quickLinkData[key_1][key_2].factory }}</p>
-            <p class="home-wrap-content__item createTime">{{ quickLinkData[key_1][key_2].createTime }}</p>
+            <h3 class="home-wrap-content__item title">{{ data.title }}</h3>
+            <p class="home-wrap-content__item factory">{{ data.factory }}</p>
+            <p class="home-wrap-content__item createTime">{{ data.createTime }}</p>
           </div>
           <div class="home-wrap-options">
-            <div class="option-collect">
+            <div class="option-collect" @click="collectCard(data)">
               <el-icon>
                 <Star v-if="true" />
                 <StarFilled v-else />
@@ -57,9 +62,9 @@ const { quickLinkData, dataKeyBySort } = toRefs(props)
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :icon="Edit" @click="editCard(quickLinkData[key_1][key_2])">编辑</el-dropdown-item>
-                  <el-dropdown-item :icon="DeleteFilled" @click="handleDelete(key_1, key_2)">删除</el-dropdown-item>
-                  <el-dropdown-item :icon="StarFilled">收藏</el-dropdown-item>
+                  <el-dropdown-item :icon="Edit" @click="editCard(data)">编辑</el-dropdown-item>
+                  <el-dropdown-item :icon="DeleteFilled" @click="handleDelete(index, data)">删除</el-dropdown-item>
+                  <el-dropdown-item :icon="StarFilled" @click="collectCard(data)">收藏</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -67,11 +72,10 @@ const { quickLinkData, dataKeyBySort } = toRefs(props)
         </div>
         <div class="home-wrap" v-else>
           <div class="home-wrap-desc">
-            {{ quickLinkData[key_1][key_2].title }}
+            {{ data.title }}
           </div>
         </div>
       </template>
-    </template>
   </div>
 </template>
 
