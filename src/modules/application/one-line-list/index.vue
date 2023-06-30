@@ -36,6 +36,8 @@ const collectCard = (cardData: QuickLinkDataItem) => {
     window.electronAPI.collect(JSON.stringify(cardData))
       .then((res: any) => {
         ElMessage('已收藏')
+        // TODO: 这里的操作可以不调用控制层来获取数据，只对渲染层数据进行更新
+        // 保证更新后，原来的列表数据不会丢失
         props.setCurrentListData(store_option.sortType)
       })
       .catch((err: any) => {

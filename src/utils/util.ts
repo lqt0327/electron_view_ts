@@ -11,9 +11,9 @@ const quickSort = (arr: any[]): any[] => {
   for(let v of arr) {
     let t2 = v.createTime.replace(/(-)*/g, '')
     if(t2 > t1) {
-      right.push(v)
-    }else {
       left.push(v)
+    }else {
+      right.push(v)
     }
   }
   return quickSort(left).concat(cur, quickSort(right))
