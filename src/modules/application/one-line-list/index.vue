@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { onMounted, toRefs, watch } from 'vue'
-import type { PropType } from 'vue'
 import { MoreFilled, Edit, StarFilled, DeleteFilled, Star, Position } from '@element-plus/icons-vue'
-import { useOptionStore } from '../../../store/store'
 
 const props = defineProps({
   quickLinkData: {
@@ -29,16 +27,12 @@ const props = defineProps({
 
 const { quickLinkData } = toRefs(props)
 
-const store_option = useOptionStore()
-
 const collectCard = (cardData: QuickLinkDataItem) => {
   if(!cardData.collect) {
     window.electronAPI.collect(JSON.stringify(cardData))
       .then((res: any) => {
         ElMessage('已收藏')
-        // TODO: 这里的操作可以不调用控制层来获取数据，只对渲染层数据进行更新
-        // 保证更新后，原来的列表数据不会丢失
-        props.setCurrentListData(store_option.sortType)
+        cardData.collect = 1
       })
       .catch((err: any) => {
         console.error('卡片收藏错误: ', err)
@@ -47,7 +41,7 @@ const collectCard = (cardData: QuickLinkDataItem) => {
     window.electronAPI.cancelCollect(cardData.id)
     .then((res: any)=>{
       ElMessage('已经取消收藏')
-      props.setCurrentListData(store_option.sortType)
+      cardData.collect = 0
     })
     .catch((err: any)=>{
       console.error('卡片取消收藏错误: ', err)
@@ -85,7 +79,7 @@ const startEXE = (data: QuickLinkDataItem) => {
           <div class="home-content-factory">厂商：{{ data.factory }}</div>
           <div class="home-content-createTime">时间：{{ data.createTime }}</div>
           <div class="home-wrap-option">
-            <div class="option-start" @click="startEXE(data)">
+            <div class="option-start" :class="{'disabled': !data.startLink}" @click="startEXE(data)">
               <el-icon size="20">
                 <Position />
               </el-icon>
@@ -175,6 +169,10 @@ const startEXE = (data: QuickLinkDataItem) => {
     align-items: center;
     width: 500px;
     color: var(--text-color-active);
+    .option-start.disabled {
+      cursor: not-allowed;
+      color: #C0C4CC;
+    }
 
     .option-start,
     .option-edit,

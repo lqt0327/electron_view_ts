@@ -68,7 +68,7 @@ const submit = async () => {
     window.electronAPI.addQuickLinkData(JSON.stringify(form)).catch((err: Error)=>{
       console.log('新增卡片出错：', err)
     })
-    emits('setCurrentListData', store_option.sortType)
+    emits('setCurrentListData', store_option.classType)
     onCloseDialog()
   }
 
@@ -80,7 +80,7 @@ const submit = async () => {
       console.error('更新卡片出错：', err)
       props.setCardData(pre)
     })
-    emits('setCurrentListData', store_option.sortType)
+    emits('setCurrentListData', store_option.classType)
     onCloseDialog()
   }
   

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Search, CloseBold } from '@element-plus/icons-vue'
 import EditDialog from '../edit-dialog/index.vue'
+import DatabaseDialog from '../database-dialog/index.vue'
 import { ref } from 'vue'
 import { useCardStore, useOptionStore } from '../../store/store'
 import { storeToRefs } from 'pinia'
@@ -21,18 +22,14 @@ const props = defineProps({
 })
 
 const dialogFormVisible = ref(false)
+const dialogDatabaseVisible = ref(false)
 
 const closeDialog = () => {
   dialogFormVisible.value = false
 }
 
-const selectApp = async () => {
-  if (window.electronAPI) {
-    await window.electronAPI.openFile('exe')
-    props.setCurrentListData(store_option.sortType)
-  } else {
-    ElMessage('未知异常，请稍后重试～')
-  }
+const closeDatabaseDialog = () => {
+  dialogDatabaseVisible.value = false
 }
 
 const editCard = () => {
@@ -80,7 +77,7 @@ const handleSearch = (value: string) => {
 }
 
 const closeSearch = () => {
-  props.setCurrentListData(store_option.sortType)
+  props.setCurrentListData(store_option.classType)
   store_option.keywords = ''
 }
 
@@ -88,7 +85,7 @@ const autoReadData = () => {
   window.electronAPI.autoWriteListData().then((res: any)=>{
     if(res.status.code === 0) {
       if(res.result) {
-        props.setCurrentListData(store_option.sortType)
+        props.setCurrentListData(store_option.classType)
       }
     }else {
       ElMessage.error(res.status.message || 'unknown error')
@@ -98,6 +95,18 @@ const autoReadData = () => {
 
 const handleSort = (val: string) => {
   props.setCurrentListData(val)
+}
+
+const initDatabase = () => {
+  window.electronAPI.initDatabase()
+}
+
+const outputDatabase = () => {
+  window.electronAPI.outputDatabase()
+}
+
+const importDatabase = () => {
+  dialogDatabaseVisible.value = true
 }
 
 /**
@@ -120,8 +129,8 @@ defineExpose({
   <div class="header">
     <div class="header-select">
       <div class="header-filter">
-        <el-select v-model="store_option.sortType" class="m-2" placeholder="Select" placement="bottom" @change="handleSort">
-          <el-option v-for="item in options_sort" :key="item.value" :label="item.label" :value="item.value" />
+        <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
+          <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
         <!-- <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
           <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />
@@ -132,9 +141,11 @@ defineExpose({
       </div>
     </div>
     <div class="header-options">
-      <el-button type="primary" round @click="selectApp">扫描文件</el-button>
       <el-button type="primary" round @click="editCard">手动添加</el-button>
-      <el-button type="primary" round @click="autoReadData">JSON写入</el-button>
+      <!-- <el-button type="primary" round @click="autoReadData">JSON写入</el-button>
+      <el-button type="primary" round @click="initDatabase">同步数据库</el-button> -->
+      <el-button type="primary" round @click="outputDatabase">导出数据库</el-button>
+      <el-button type="primary" round @click="importDatabase">导入数据库</el-button>
     </div>
     <div class="options-tips">自动扫描所选目录下的所有exe文件，生成快捷启动卡片</div>
     <div class="header-options" v-if="store_option.keywords">
@@ -149,6 +160,11 @@ defineExpose({
       @closeDialog="closeDialog"
       @setCurrentListData="props.setCurrentListData" 
       type="create" 
+    />
+    <DatabaseDialog 
+      v-if="dialogDatabaseVisible" 
+      @closeDialog="closeDatabaseDialog"
+      @setCurrentListData="props.setCurrentListData" 
     />
   </div>
 </template>

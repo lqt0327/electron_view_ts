@@ -27,7 +27,7 @@ declare namespace ResponseParam {
   
   interface getQuickLinkData {
     status: status,
-    result: QuickLinkData,
+    result: QuickLinkDataItem[],
   }
 }
 

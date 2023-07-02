@@ -8,7 +8,6 @@ import OneLineList from './application/one-line-list/index.vue'
 import { useCardStore, useOptionStore } from '../store/store'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { formatListData } from '../utils/util'
 
 const router = useRouter()
 
@@ -22,9 +21,9 @@ const headerRef = ref()
 
 const quickLinkData: Ref<QuickLinkDataItem[]> = ref([])
 
-const initListData = (sort = "default") => {
+const initListData = (type = "default") => {
   if (window?.electronAPI?.getQuickLinkData && typeof window.electronAPI.getQuickLinkData === 'function') {
-    return window.electronAPI.getQuickLinkData(sort).then((res: ResponseParam.getQuickLinkData) => {
+    return window.electronAPI.getQuickLinkData(type).then((res: ResponseParam.getQuickLinkData) => {
       if(res.status.code === 0) {
         return res.result
       }else {
@@ -40,25 +39,18 @@ const initListData = (sort = "default") => {
 
 /**
  * 
- * @param {*} sort -排序方式 time: 按时间排序 ｜ default: 按文件加入顺序排序
+ * @param {*} type -分类 collect: 收藏夹 ｜ default: 全部展示
  */
-const setCurrentListData = async (sort: string) => {
-  quickLinkData.value = formatListData(await initListData(sort), sort)
+const setCurrentListData = async (type: string) => {
+  quickLinkData.value = await initListData(type)
 }
 
-const setSearchListData = async (list_key: Array<string>) => {
-  let data: QuickLinkData = await initListData()
-  let tmp: any = {}
-  for(let v of list_key) {
-    if(typeof data.default[v] === 'object') {
-      tmp[v] = data.default[v]
-    }
-  }
-  quickLinkData.value = Object.values(tmp)
+const setSearchListData = async (list: QuickLinkDataItem[]) => {
+  quickLinkData.value = list
 }
 
 onMounted(async () => {
-  setCurrentListData(store_option.sortType)
+  setCurrentListData(store_option.classType)
 })
 
 const goToAbout = (data: QuickLinkDataItem) => {

@@ -36,7 +36,7 @@ export const useCardStore = defineStore('cardContent', {
 
 export const useOptionStore = defineStore('OptionStore', {
     state: ()=> ({ 
-        sortType: 'time',
+        sortType: 'default',
         classType: 'default',
         keywords: '',
     }),
