@@ -42,9 +42,12 @@ const handleUploadFile = () => {
     fileInput.value.click();
 }
 
-const handleFileChange = (event: { target: { files: any[]; }; }) => {
-    const file = event.target.files[0];
-    activedFile.value = file
+const handleFileChange = (event: Event) => {
+    const fileInput = event.target as HTMLInputElement;
+    if(fileInput.files && fileInput.files.length >0) {
+        const file = fileInput.files[0];
+        activedFile.value = file
+    }
 }
 
 const onCloseDialog = () =>{
@@ -83,7 +86,7 @@ const submit = () => {
             <div class="dropzone" @click="handleUploadFile" @dragover="dropzoneDragOver" @drop="dropzoneDrop" v-if="!activedFile">
                 点击或拖拽JSON文件到此处
             </div>
-            <input type="file" ref="fileInput" style="display: none;"  @change="handleFileChange">
+            <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange">
             <div class="file-wrap" v-if="activedFile">
                 <span>{{ activedFile.name }}</span>
                 <el-icon @click="handleDelete"><Close /></el-icon>
