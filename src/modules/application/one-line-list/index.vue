@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, toRefs, watch } from 'vue'
+import { onMounted, toRefs, watch, ref, computed, Ref } from 'vue'
 import { MoreFilled, Edit, StarFilled, DeleteFilled, Star, Position } from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -26,6 +26,13 @@ const props = defineProps({
 })
 
 const { quickLinkData } = toRefs(props)
+
+const listBottom = ref()
+const total = computed(() => Math.ceil(quickLinkData.value.length / 10))
+const page = ref(1)
+const visibleData: Ref<QuickLinkDataItem[]> = computed(() => {
+  return quickLinkData.value.slice(0, page.value * 10)
+})
 
 const collectCard = (cardData: QuickLinkDataItem) => {
   if(!cardData.collect) {
@@ -67,11 +74,21 @@ const startEXE = (data: QuickLinkDataItem) => {
   }
 }
 
+onMounted(()=>{
+  window.onscroll = () => {
+    if(listBottom.value.getBoundingClientRect().top < 800) {
+      if(page.value < total.value) {
+        page.value += 1
+      }
+    }
+  }
+})
+
 </script>
 
 <template>
   <div class="home-container">
-    <template v-for="(data, index) in quickLinkData">
+    <template v-for="(data, index) in visibleData">
       <div class="home-wrap">
         <el-image class="home-wrap-image" :src="data.img" fit="cover" @click="goToAbout(data)" />
         <div class="home-wrap-content">
@@ -111,6 +128,7 @@ const startEXE = (data: QuickLinkDataItem) => {
         </div>
       </div>
     </template>
+    <div class="list-bottom" ref="listBottom">- 到底啦 -</div>
   </div>
 </template>
 
@@ -132,6 +150,15 @@ const startEXE = (data: QuickLinkDataItem) => {
   margin-bottom: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #efeff2;
+}
+
+.list-bottom {
+  width: 100%;
+  height: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
 }
 
 .home-wrap-image {

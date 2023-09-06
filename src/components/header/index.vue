@@ -81,24 +81,8 @@ const closeSearch = () => {
   store_option.keywords = ''
 }
 
-const autoReadData = () => {
-  window.electronAPI.autoWriteListData().then((res: any)=>{
-    if(res.status.code === 0) {
-      if(res.result) {
-        props.setCurrentListData(store_option.classType)
-      }
-    }else {
-      ElMessage.error(res.status.message || 'unknown error')
-    }
-  })
-}
-
 const handleSort = (val: string) => {
   props.setCurrentListData(val)
-}
-
-const initDatabase = () => {
-  window.electronAPI.initDatabase()
 }
 
 const outputDatabase = () => {
@@ -142,8 +126,6 @@ defineExpose({
     </div>
     <div class="header-options">
       <el-button type="primary" round @click="editCard">手动添加</el-button>
-      <!-- <el-button type="primary" round @click="autoReadData">JSON写入</el-button>
-      <el-button type="primary" round @click="initDatabase">同步数据库</el-button> -->
       <el-button type="primary" round @click="outputDatabase">导出数据库</el-button>
       <el-button type="primary" round @click="importDatabase">导入数据库</el-button>
     </div>

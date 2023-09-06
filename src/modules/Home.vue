@@ -110,7 +110,7 @@ const closeDialog = () => {
       :handleDelete="handleDelete" 
     />
     <OneLineList 
-      v-if="true"
+      v-if="quickLinkData.length"
       :quickLinkData="quickLinkData"
       :goToAbout="goToAbout" 
       :editCard="editCard" 
