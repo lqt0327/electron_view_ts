@@ -2,7 +2,7 @@
 import { Search, CloseBold } from '@element-plus/icons-vue'
 import EditDialog from '../edit-dialog/index.vue'
 import DatabaseDialog from '../database-dialog/index.vue'
-import { ref } from 'vue'
+import { ref, onMounted, Ref } from 'vue'
 import { useCardStore, useOptionStore } from '../../store/store'
 import { storeToRefs } from 'pinia'
 
@@ -23,6 +23,7 @@ const props = defineProps({
 
 const dialogFormVisible = ref(false)
 const dialogDatabaseVisible = ref(false)
+const options_class: Ref<tbNameItem[]> = ref([])
 
 const closeDialog = () => {
   dialogFormVisible.value = false
@@ -54,17 +55,6 @@ const options_sort = [
   {
     value: 'collect',
     label: '收藏夹',
-  },
-]
-
-const options_class = [
-  {
-    value: 'collect',
-    label: '收藏夹',
-  },
-  {
-    value: 'default',
-    label: '全部',
   },
 ]
 
@@ -107,6 +97,10 @@ defineExpose({
   // sortType
 })
 
+onMounted(async ()=>{
+  options_class.value = await window.electronAPI.tableList()
+})
+
 </script>
 
 <template>
@@ -114,7 +108,7 @@ defineExpose({
     <div class="header-select">
       <div class="header-filter">
         <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
-          <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option v-for="item in options_class" :key="item.value" :label="item.name" :value="item.value" />
         </el-select>
         <!-- <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
           <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />

@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Close } from '@element-plus/icons-vue'
+import { useOptionStore } from '../../store/store'
 
 const emits = defineEmits(['closeDialog', 'setCurrentListData'])
 const props = defineProps({
 
 })
+
+const store_option = useOptionStore()
 
 const fileInput = ref()
 
@@ -71,7 +74,7 @@ const submit = () => {
             message: '导入成功',
             type: 'success'
         })
-        emits('setCurrentListData', 'default')
+        emits('setCurrentListData', store_option.classType)
         onCloseDialog()
     }).catch(err=>{
         ElMessage.error('导入失败')

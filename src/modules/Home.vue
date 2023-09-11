@@ -39,7 +39,7 @@ const initListData = (type = "default") => {
 
 /**
  * 
- * @param {*} type -分类 collect: 收藏夹 ｜ default: 全部展示
+ * @param {*} type -分类
  */
 const setCurrentListData = async (type: string) => {
   quickLinkData.value = await initListData(type)

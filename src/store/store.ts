@@ -37,7 +37,7 @@ export const useCardStore = defineStore('cardContent', {
 export const useOptionStore = defineStore('OptionStore', {
     state: ()=> ({ 
         sortType: 'default',
-        classType: 'default',
+        classType: 'tbList',
         keywords: '',
     }),
 })

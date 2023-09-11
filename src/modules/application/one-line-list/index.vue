@@ -76,7 +76,7 @@ const startEXE = (data: QuickLinkDataItem) => {
 
 onMounted(()=>{
   window.onscroll = () => {
-    if(listBottom.value.getBoundingClientRect().top < 800) {
+    if(listBottom.value?.getBoundingClientRect().top < 800) {
       if(page.value < total.value) {
         page.value += 1
       }

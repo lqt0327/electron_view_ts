@@ -19,6 +19,12 @@ interface QuickLinkDataItem {
   collect: number
 }
 
+interface tbNameItem {
+  id?: number;
+  name: string;
+  value: string;
+}
+
 declare namespace ResponseParam {
   interface status {
     code: number;
