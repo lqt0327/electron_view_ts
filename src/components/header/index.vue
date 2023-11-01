@@ -83,6 +83,48 @@ const importDatabase = () => {
   dialogDatabaseVisible.value = true
 }
 
+const createOptionClass = () => {
+  ElMessageBox.prompt('Please input your e-mail', 'Tip', {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Cancel',
+    inputValidator: (value)=> {
+      if(!value) {
+        return false
+      }
+      return true
+    },
+    inputErrorMessage: '不能为空',
+  })
+    .then(async ({ value }) => {
+      try {
+        const result = await window.electronAPI.createTable(value)
+        if(result) {
+          ElMessage({
+            type: 'success',
+            message: '创建分类成功',
+          })
+        }else {
+          ElMessage({
+            type: 'info',
+            message: '分类已存在',
+          })
+        }
+      }catch(err) {
+        console.error('创建分类失败：', err)
+        ElMessage({
+          type: 'error',
+          message: `创建分类失败`,
+        })
+      }
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Input canceled',
+      })
+    })
+}
+
 /**
  * 分类 选择
  */
@@ -122,6 +164,7 @@ onMounted(async ()=>{
       <el-button type="primary" round @click="editCard">手动添加</el-button>
       <el-button type="primary" round @click="outputDatabase">导出数据库</el-button>
       <el-button type="primary" round @click="importDatabase">导入数据库</el-button>
+      <el-button type="primary" round @click="createOptionClass">新增分类</el-button>
     </div>
     <div class="options-tips">自动扫描所选目录下的所有exe文件，生成快捷启动卡片</div>
     <div class="header-options" v-if="store_option.keywords">

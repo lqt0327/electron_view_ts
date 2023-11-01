@@ -16,7 +16,8 @@ interface QuickLinkDataItem {
   src: string;
   tags: string[];
   title_cn: string;
-  collect: number
+  collect: number,
+  custom_col?: string[]
 }
 
 interface tbNameItem {
@@ -37,3 +38,8 @@ declare namespace ResponseParam {
   }
 }
 
+interface collectListParam {
+  id: string | number;
+  name: string;
+  value: string;
+}

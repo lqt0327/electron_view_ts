@@ -26,6 +26,7 @@ const props = defineProps({
 })
 
 const { quickLinkData } = toRefs(props)
+const collectList: Ref<collectListParam[]> = ref([])
 
 const listBottom = ref()
 const total = computed(() => Math.ceil(quickLinkData.value.length / 10))
@@ -34,27 +35,53 @@ const visibleData: Ref<QuickLinkDataItem[]> = computed(() => {
   return quickLinkData.value.slice(0, page.value * 10)
 })
 
-const collectCard = (cardData: QuickLinkDataItem) => {
-  if(!cardData.collect) {
-    window.electronAPI.collect(JSON.stringify(cardData))
-      .then((res: any) => {
-        ElMessage('已收藏')
-        cardData.collect = 1
+/**
+ * TODO: 整体逻辑待优化
+ * @param cardData 
+ * @param col 
+ */
+const collectCard = (cardData: QuickLinkDataItem, col: collectListParam) => {
+  if(col.value === 'tbCollect') {
+    if(!cardData.collect) {
+      window.electronAPI.collect(JSON.stringify(cardData), col.value)
+        .then((res: any) => {
+          ElMessage('已收藏')
+          cardData.collect = 1
+        })
+        .catch((err: any) => {
+          console.error('卡片收藏错误: ', err)
+        })
+    }else {
+      window.electronAPI.cancelCollect(cardData.id, col.value)
+      .then((res: any)=>{
+        ElMessage('已经取消收藏')
+        cardData.collect = 0
       })
-      .catch((err: any) => {
-        console.error('卡片收藏错误: ', err)
+      .catch((err: any)=>{
+        console.error('卡片取消收藏错误: ', err)
       })
+    }
   }else {
-    window.electronAPI.cancelCollect(cardData.id)
-    .then((res: any)=>{
-      ElMessage('已经取消收藏')
-      cardData.collect = 0
-    })
-    .catch((err: any)=>{
-      console.error('卡片取消收藏错误: ', err)
-    })
+    if(cardData.custom_col?.includes(col.value)) {
+      window.electronAPI.cancelCollect(cardData.id, col.value)
+      .then((res: any)=>{
+        ElMessage('已经取消收藏')
+        cardData.custom_col = cardData.custom_col?.filter((item: string) => item !== col.value)
+      })
+      .catch((err: any)=>{
+        console.error('卡片取消收藏错误: ', err)
+      })
+    }else {
+      window.electronAPI.collect(JSON.stringify(cardData), col.value)
+        .then((res: any) => {
+          ElMessage('已收藏')
+          cardData.custom_col?.push(col.value)
+        })
+        .catch((err: any) => {
+          console.error('卡片收藏错误: ', err)
+        })
+    }
   }
-  
 }
 
 const startEXE = (data: QuickLinkDataItem) => {
@@ -72,6 +99,17 @@ const startEXE = (data: QuickLinkDataItem) => {
       message: '程序启动链接缺失',
     })
   }
+}
+
+const handleCollect = (data: QuickLinkDataItem) => {
+  console.log(data,'???---')
+  window.electronAPI.getCollectList()
+    .then((res: any) => {
+      collectList.value = res
+    })
+    .catch((err: any) => {
+      console.error('获取收藏列表错误: ', err)
+    })
 }
 
 onMounted(()=>{
@@ -110,12 +148,25 @@ onMounted(()=>{
               <span class="label-text">编辑</span>
             </div>
             <span class="option-line">|</span>
-            <div class="option-star" @click="collectCard(data)">
-              <el-icon size="20">
-                <StarFilled v-if="data.collect" />
-                <Star v-else />
-              </el-icon>
-              <span class="label-text">收藏</span>
+            <!-- <div class="option-star" @click="collectCard(data)"> -->
+            <div class="option-star">
+              <el-popover placement="right" :width="400" trigger="click" @show="handleCollect(data)">
+                <template #reference>
+                  <div class="option-star-wrap">
+                    <el-icon size="20">
+                      <StarFilled v-if="data.collect" />
+                      <Star v-else />
+                    </el-icon>
+                    <span class="label-text">收藏</span>
+                  </div>
+                </template>
+                <ul class="collect-list" v-for="item in collectList">
+                  <li class="collect-list-item" :class="{'actived': false}" @click="collectCard(data, item)">
+                    {{ item.name }}
+                  </li>
+                </ul>
+              </el-popover>
+              
             </div>
             <span class="option-line">|</span>
             <div class="option-delete" @click="handleDelete(index, data)">
@@ -204,7 +255,8 @@ onMounted(()=>{
     .option-start,
     .option-edit,
     .option-delete,
-    .option-star {
+    .option-star,
+    .option-star-wrap {
       display: flex;
       cursor: pointer;
     }
@@ -217,4 +269,6 @@ onMounted(()=>{
       margin-left: 5px;
     }
   }
-}</style>
+}
+
+</style>
