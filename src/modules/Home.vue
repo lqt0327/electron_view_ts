@@ -23,7 +23,7 @@ const quickLinkData: Ref<QuickLinkDataItem[]> = ref([])
 
 const initListData = (type = "default") => {
   if (window?.electronAPI?.getQuickLinkData && typeof window.electronAPI.getQuickLinkData === 'function') {
-    return window.electronAPI.getQuickLinkData(type).then((res: ResponseParam.getQuickLinkData) => {
+    return window.electronAPI.getQuickLinkData().then((res: ResponseParam.getQuickLinkData) => {
       if(res.status.code === 0) {
         return res.result
       }else {

@@ -140,7 +140,7 @@ defineExpose({
 })
 
 onMounted(async ()=>{
-  options_class.value = await window.electronAPI.tableList()
+  options_class.value = await window.electronAPI.getCollectList()
 })
 
 </script>

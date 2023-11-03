@@ -6,6 +6,7 @@ interface QuickLinkData {
 
 interface QuickLinkDataItem {
   id: string;
+  _id?: string;
   title: string;
   img: string;
   factory: string;
