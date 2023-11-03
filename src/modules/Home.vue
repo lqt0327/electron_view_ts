@@ -21,9 +21,9 @@ const headerRef = ref()
 
 const quickLinkData: Ref<QuickLinkDataItem[]> = ref([])
 
-const initListData = (type = "default") => {
+const initListData = (table: string) => {
   if (window?.electronAPI?.getQuickLinkData && typeof window.electronAPI.getQuickLinkData === 'function') {
-    return window.electronAPI.getQuickLinkData().then((res: ResponseParam.getQuickLinkData) => {
+    return window.electronAPI.getQuickLinkData(table).then((res: ResponseParam.getQuickLinkData) => {
       if(res.status.code === 0) {
         return res.result
       }else {
@@ -72,7 +72,7 @@ const handleDelete = (key: number, data: QuickLinkDataItem) => {
     }
   ).then(() => {
     quickLinkData.value.splice(key, 1)
-    window.electronAPI.deleteQuickLinkData(data.id).catch((err:any) => {
+    window.electronAPI.deleteQuickLinkData(data._id).catch((err:any) => {
       console.error('卡片删除错误: ', err)
     })
     ElMessage({

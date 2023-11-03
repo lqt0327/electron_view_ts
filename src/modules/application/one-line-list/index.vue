@@ -41,46 +41,25 @@ const visibleData: Ref<QuickLinkDataItem[]> = computed(() => {
  * @param col 
  */
 const collectCard = (cardData: QuickLinkDataItem, col: collectListParam) => {
-  if(col.value === 'tbCollect') {
-    if(!cardData.collect) {
-      window.electronAPI.collect(JSON.stringify(cardData), col.value)
-        .then((res: any) => {
-          ElMessage('已收藏')
-          cardData.collect = 1
-        })
-        .catch((err: any) => {
-          console.error('卡片收藏错误: ', err)
-        })
-    }else {
-      window.electronAPI.cancelCollect(cardData.id, col.value)
-      .then((res: any)=>{
-        ElMessage('已经取消收藏')
-        cardData.collect = 0
-      })
-      .catch((err: any)=>{
-        console.error('卡片取消收藏错误: ', err)
-      })
-    }
+  console.log(cardData,'??<<<<<ppp', col)
+  if(cardData?.custom_col?.includes(col.value)) {
+    window.electronAPI.cancelCollect(cardData._id, col.value)
+    .then((res: any)=>{
+      ElMessage('已经取消收藏')
+      cardData.custom_col = cardData.custom_col?.filter((item: string) => item !== col.value)
+    })
+    .catch((err: any)=>{
+      console.error('卡片取消收藏错误: ', err)
+    })
   }else {
-    if(cardData.custom_col?.includes(col.value)) {
-      window.electronAPI.cancelCollect(cardData.id, col.value)
-      .then((res: any)=>{
-        ElMessage('已经取消收藏')
-        cardData.custom_col = cardData.custom_col?.filter((item: string) => item !== col.value)
+    window.electronAPI.collect(cardData._id, col.value)
+      .then((res: any) => {
+        ElMessage('已收藏')
+        cardData.custom_col?.push(col.value)
       })
-      .catch((err: any)=>{
-        console.error('卡片取消收藏错误: ', err)
+      .catch((err: any) => {
+        console.error('卡片收藏错误: ', err)
       })
-    }else {
-      window.electronAPI.collect(JSON.stringify(cardData), col.value)
-        .then((res: any) => {
-          ElMessage('已收藏')
-          cardData.custom_col?.push(col.value)
-        })
-        .catch((err: any) => {
-          console.error('卡片收藏错误: ', err)
-        })
-    }
   }
 }
 

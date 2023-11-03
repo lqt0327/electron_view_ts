@@ -2,7 +2,7 @@
 import { Search, CloseBold } from '@element-plus/icons-vue'
 import EditDialog from '../edit-dialog/index.vue'
 import DatabaseDialog from '../database-dialog/index.vue'
-import { ref, onMounted, Ref } from 'vue'
+import { ref, onMounted, Ref, toRefs } from 'vue'
 import { useCardStore, useOptionStore } from '../../store/store'
 import { storeToRefs } from 'pinia'
 
@@ -36,6 +36,8 @@ const closeDatabaseDialog = () => {
 const editCard = () => {
   // TODO: id需要主线程中调用函数生成，
   store_card.$reset()
+  const data = store_card.cardData
+  setCardData(data)
   dialogFormVisible.value = true
 }
 

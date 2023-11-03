@@ -45,7 +45,8 @@ const form = reactive(Object.assign({
   banner: '',
   about: '',
   startLink: '',
-  title_cn: ''
+  title_cn: '',
+  custom_col: []
 }, nowCardData.value))
 
 const setImageUrl = (url: string) => {
@@ -76,7 +77,7 @@ const submit = async () => {
     // TODO: 增加校验逻辑
     const pre = Object.assign({}, nowCardData.value)
     props.setCardData(form)
-    window.electronAPI.updateQuickLinkData(nowCardData.value.id, JSON.stringify(form)).catch((err: any) => {
+    window.electronAPI.updateQuickLinkData(nowCardData.value._id, JSON.stringify(form)).catch((err: any) => {
       console.error('更新卡片出错：', err)
       props.setCardData(pre)
     })
