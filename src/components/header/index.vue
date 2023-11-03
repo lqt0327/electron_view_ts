@@ -86,9 +86,9 @@ const importDatabase = () => {
 }
 
 const createOptionClass = () => {
-  ElMessageBox.prompt('Please input your e-mail', 'Tip', {
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Cancel',
+  ElMessageBox.prompt('请输入你的分类名称', '添加', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
     inputValidator: (value)=> {
       if(!value) {
         return false
@@ -105,6 +105,7 @@ const createOptionClass = () => {
             type: 'success',
             message: '创建分类成功',
           })
+          options_class.value = await window.electronAPI.getClassify()
         }else {
           ElMessage({
             type: 'info',
@@ -142,7 +143,7 @@ defineExpose({
 })
 
 onMounted(async ()=>{
-  options_class.value = await window.electronAPI.getCollectList()
+  options_class.value = await window.electronAPI.getClassify()
 })
 
 </script>

@@ -129,7 +129,7 @@ onMounted(()=>{
             <span class="option-line">|</span>
             <!-- <div class="option-star" @click="collectCard(data)"> -->
             <div class="option-star">
-              <el-popover placement="right" :width="400" trigger="click" @show="handleCollect(data)">
+              <el-popover popper-class="collect-popper" placement="right" :width="200" trigger="click" @show="handleCollect(data)">
                 <template #reference>
                   <div class="option-star-wrap">
                     <el-icon size="20">
@@ -139,8 +139,8 @@ onMounted(()=>{
                     <span class="label-text">收藏</span>
                   </div>
                 </template>
-                <ul class="collect-list" v-for="item in collectList">
-                  <li class="collect-list-item" :class="{'actived': false}" @click="collectCard(data, item)">
+                <ul class="collect-list">
+                  <li v-for="item in collectList" class="collect-list-item" :class="{'actived': data.custom_col?.includes(item.value)}" @click="collectCard(data, item)">
                     {{ item.name }}
                   </li>
                 </ul>
@@ -250,4 +250,27 @@ onMounted(()=>{
   }
 }
 
+</style>
+
+<style lang="less">
+.el-popover.el-popper.collect-popper {
+  padding: 0;
+}
+.collect-popper {
+  .collect-list {
+    padding: 5px;
+    box-sizing: border-box;
+    .collect-list-item {
+      padding: 10px 20px;
+      box-sizing: border-box;
+      cursor: pointer;
+      &:hover {
+        background-color: var(--background-color-popper-hover);
+      }
+    }
+    .collect-list-item.actived {
+      background-color: var(--background-color-popper-hover);
+    }
+  }
+}
 </style>
