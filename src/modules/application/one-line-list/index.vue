@@ -81,7 +81,6 @@ const startEXE = (data: QuickLinkDataItem) => {
 }
 
 const handleCollect = (data: QuickLinkDataItem) => {
-  console.log(data,'???---')
   window.electronAPI.getCollectList()
     .then((res: any) => {
       collectList.value = res
@@ -129,7 +128,7 @@ onMounted(()=>{
             <span class="option-line">|</span>
             <!-- <div class="option-star" @click="collectCard(data)"> -->
             <div class="option-star">
-              <el-popover popper-class="collect-popper" placement="right" :width="200" trigger="click" @show="handleCollect(data)">
+              <el-popover popper-class="collect-popper" placement="right" :width="200" trigger="hover" @show="handleCollect(data)">
                 <template #reference>
                   <div class="option-star-wrap">
                     <el-icon size="20">

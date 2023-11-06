@@ -4,7 +4,7 @@ import UploadImage from '../upload-image/index.vue'
 import StartLink from '../start-link/index.vue'
 import { useOptionStore } from '../../store/store'
 
-const emits = defineEmits(['closeDialog', 'setCurrentListData'])
+const emits = defineEmits(['closeDialog', 'setCurrentListData', 'setSearchListData'])
 const props = defineProps({
   setCardData: {
     type: Function,
@@ -69,7 +69,14 @@ const submit = async () => {
     window.electronAPI.addQuickLinkData(JSON.stringify(form)).catch((err: Error)=>{
       console.log('新增卡片出错：', err)
     })
-    emits('setCurrentListData', store_option.classType)
+    if(store_option.keywords) {
+      const { status, result } = await window.electronAPI.searchQuickLinkData(store_option.keywords)
+      if(status.code === 0) {
+        emits('setSearchListData', result)
+      }
+    }else {
+      emits('setCurrentListData', store_option.classType)
+    }
     onCloseDialog()
   }
 
@@ -77,11 +84,20 @@ const submit = async () => {
     // TODO: 增加校验逻辑
     const pre = Object.assign({}, nowCardData.value)
     props.setCardData(form)
-    window.electronAPI.updateQuickLinkData(nowCardData.value._id, JSON.stringify(form)).catch((err: any) => {
+    try {
+      await window.electronAPI.updateQuickLinkData(nowCardData.value._id, JSON.stringify(form))
+    }catch(err) {
       console.error('更新卡片出错：', err)
       props.setCardData(pre)
-    })
-    emits('setCurrentListData', store_option.classType)
+    }
+    if(store_option.keywords) {
+      const { status, result } = await window.electronAPI.searchQuickLinkData(store_option.keywords)
+      if(status.code === 0) {
+        emits('setSearchListData', result)
+      }
+    }else {
+      emits('setCurrentListData', store_option.classType)
+    }
     onCloseDialog()
   }
   
@@ -97,6 +113,9 @@ const onCloseDialog = () =>{
     <el-form :model="form">
       <el-form-item label="标题" :label-width="formLabelWidth">
         <el-input v-model="form.title_cn" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="原标题" :label-width="formLabelWidth">
+        <el-input v-model="form.title" autocomplete="off" />
       </el-form-item>
       <el-form-item label="卡片封面" :label-width="formLabelWidth">
         <el-input v-model="form.img" autocomplete="off" />

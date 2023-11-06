@@ -94,6 +94,7 @@ const editCard = (cardData: QuickLinkDataItem) => {
   dialogFormVisible.value = true
 }
 const closeDialog = () => {
+  console.log('测试数据0000')
   dialogFormVisible.value = false
 }
 
@@ -124,6 +125,7 @@ const closeDialog = () => {
       type="edit"
       @closeDialog="closeDialog" 
       @setCurrentListData="setCurrentListData" 
+      @setSearchListData="setSearchListData"
     />
   </div>
 </template>
