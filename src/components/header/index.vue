@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Search, CloseBold } from '@element-plus/icons-vue'
+import { Search, CloseBold, Edit } from '@element-plus/icons-vue'
 import EditDialog from '../edit-dialog/index.vue'
+import ClassifyDialog from '../classify-dialog/index.vue'
 import DatabaseDialog from '../database-dialog/index.vue'
 import { ref, onMounted, Ref, toRefs } from 'vue'
 import { useCardStore, useOptionStore } from '../../store/store'
@@ -23,10 +24,15 @@ const props = defineProps({
 
 const dialogFormVisible = ref(false)
 const dialogDatabaseVisible = ref(false)
+const dialogClassifyVisible = ref(false)
 const options_class: Ref<tbNameItem[]> = ref([])
 
 const closeDialog = () => {
   dialogFormVisible.value = false
+}
+
+const closeClassifyDialog = () => {
+  dialogClassifyVisible.value = false
 }
 
 const closeDatabaseDialog = () => {
@@ -77,8 +83,8 @@ const handleSort = (val: string) => {
   props.setCurrentListData(val)
 }
 
-const outputDatabase = () => {
-  window.electronAPI.outputDatabase()
+const exportDatabase = () => {
+  window.electronAPI.exportDatabase()
 }
 
 const importDatabase = () => {
@@ -135,6 +141,24 @@ const handleClass = (val: string) => {
   props.setCurrentListData(val)
 }
 
+const editClassify = () => {
+  dialogClassifyVisible.value = true
+}
+
+const updateClassify = async (data: tbNameItem[]) => {
+  const newData = data.map((item, index) => {
+    item.sort = index
+    return item
+  })
+  try{
+    await window.electronAPI.updateClassify('tb_name', JSON.stringify(newData))
+    options_class.value = await window.electronAPI.getClassify()
+  }catch(err) {
+    ElMessage.error('数据更新失败！')
+    console.error(err)
+  }
+}
+
 /**
  * 需要暴露给父组件的属性
  */
@@ -152,12 +176,12 @@ onMounted(async ()=>{
   <div class="header">
     <div class="header-select">
       <div class="header-filter">
-        <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
-          <el-option v-for="item in options_class" :key="item.value" :label="item.name" :value="item.value" />
-        </el-select>
-        <!-- <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
-          <el-option v-for="item in options_class" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select> -->
+        <div class="header-filter-wrap">
+          <el-select v-model="store_option.classType" class="m-2" placeholder="Select" placement="bottom" @change="handleClass">
+            <el-option v-for="item in options_class" :key="item.value" :label="item.name" :value="item.value" />
+          </el-select>
+          <el-icon class="edit-icon" :size="20" @click="editClassify"><Edit /></el-icon>
+        </div>
       </div>
       <div class="search">
         <el-input v-model="store_option.keywords" placeholder="请输入" :prefix-icon="Search" @change="handleSearch" />
@@ -165,7 +189,7 @@ onMounted(async ()=>{
     </div>
     <div class="header-options">
       <el-button type="primary" round @click="editCard">手动添加</el-button>
-      <el-button type="primary" round @click="outputDatabase">导出数据库</el-button>
+      <el-button type="primary" round @click="exportDatabase">导出数据库</el-button>
       <el-button type="primary" round @click="importDatabase">导入数据库</el-button>
       <el-button type="primary" round @click="createOptionClass">新增分类</el-button>
     </div>
@@ -182,6 +206,12 @@ onMounted(async ()=>{
       @closeDialog="closeDialog"
       @setCurrentListData="props.setCurrentListData" 
       type="create" 
+    />
+    <ClassifyDialog 
+      v-if="dialogClassifyVisible" 
+      :data="options_class"
+      @submit="updateClassify"
+      @closeDialog="closeClassifyDialog"
     />
     <DatabaseDialog 
       v-if="dialogDatabaseVisible" 
@@ -205,8 +235,14 @@ onMounted(async ()=>{
     justify-content: space-between;
 
     .header-filter {
-      >div {
-        margin-right: 10px;
+      .header-filter-wrap {
+        display: flex;
+        align-items: center;
+        .edit-icon {
+          margin-left: 10px;
+          color: var(--text-color-active);
+          cursor: pointer;
+        }
       }
     }
   }

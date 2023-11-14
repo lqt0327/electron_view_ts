@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    ClassifyDialog: typeof import('./components/classify-dialog/index.vue')['default']
     DatabaseDialog: typeof import('./components/database-dialog/index.vue')['default']
     EditDialog: typeof import('./components/edit-dialog/index.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']

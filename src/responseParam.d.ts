@@ -22,9 +22,16 @@ interface QuickLinkDataItem {
 }
 
 interface tbNameItem {
-  id?: number;
+  _id?: string;
   name: string;
   value: string;
+  sort?: number;
+  editFlag?: number;
+}
+
+interface SortableEvent extends Event {
+  oldIndex: number;
+  newIndex: number;
 }
 
 declare namespace ResponseParam {

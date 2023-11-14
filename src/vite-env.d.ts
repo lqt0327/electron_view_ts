@@ -8,3 +8,5 @@ declare module "*.vue" {
 declare interface Window {
   electronAPI: any;
 }
+
+declare module 'sortablejs';
