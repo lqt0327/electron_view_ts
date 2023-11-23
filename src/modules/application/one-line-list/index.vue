@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, toRefs, watch, ref, computed, Ref } from 'vue'
-import { MoreFilled, Edit, StarFilled, DeleteFilled, Star, Position } from '@element-plus/icons-vue'
+import { MoreFilled, Edit, StarFilled, DeleteFilled, Star, Position, FolderOpened } from '@element-plus/icons-vue'
 
 const props = defineProps({
   quickLinkData: {
@@ -68,7 +68,7 @@ const startEXE = (data: QuickLinkDataItem) => {
     window.electronAPI.openApp(data.startLink).catch((err: Error)=>{
       console.error('程序启动异常: ', err)
       ElMessage({
-        type: 'info',
+        type: 'error',
         message: '程序启动异常，请检查启动链接',
       })
     })
@@ -76,6 +76,23 @@ const startEXE = (data: QuickLinkDataItem) => {
     ElMessage({
       type: 'info',
       message: '程序启动链接缺失',
+    })
+  }
+}
+
+const openFolder = (data: QuickLinkDataItem) => {
+  if(data.startLink) {
+    window.electronAPI.showItemInFolder(data.startLink).catch((err: Error) => {
+      console.error('位置打开失败', err)
+      ElMessage({
+        type: 'error',
+        message: '程序位置异常，请检查位置链接',
+      })
+    })
+  }else {
+    ElMessage({
+      type: 'info',
+      message: '位置缺失',
     })
   }
 }
@@ -153,6 +170,11 @@ onMounted(()=>{
               </el-icon>
               <span class="label-text">删除</span>
             </div>
+            <span class="option-line">|</span>
+            <div class="option-folder" :class="{'disabled': !data.startLink}" @click="openFolder(data)">
+              <el-icon size="20"><FolderOpened /></el-icon>
+              <span class="label-text">文件</span>
+            </div>
           </div>
         </div>
       </div>
@@ -229,11 +251,17 @@ onMounted(()=>{
       cursor: not-allowed;
       color: #C0C4CC;
     }
+    
+    .option-folder.disabled {
+      cursor: not-allowed;
+      color: #C0C4CC;
+    }
 
     .option-start,
     .option-edit,
     .option-delete,
     .option-star,
+    .option-folder,
     .option-star-wrap {
       display: flex;
       cursor: pointer;
