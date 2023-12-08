@@ -1,8 +1,38 @@
 <script setup lang="ts">
-import { ref, reactive, toRefs, computed } from 'vue'
+import { ref, reactive, toRefs, computed, onBeforeUnmount } from 'vue'
 import UploadImage from '../upload-image/index.vue'
 import StartLink from '../start-link/index.vue'
 import { useOptionStore } from '../../store/store'
+import WebSocketClient from '../../utils/ws'
+
+const client = new WebSocketClient({
+  url: 'ws://localhost:56743/capture_view',
+  clientId: 'capture_view'
+});
+
+client.setMessageHandler((message: string) => {
+  // 处理接收到的消息
+  try {
+    const data = JSON.parse(message)
+    if(data.code === 1) {
+      if(data.source === 'img') {
+        setImageUrl(data.url)
+      }
+      else if(data.source === 'banner') {
+        setBannerUrl(data.url)
+      }
+    }
+    console.log(data,'???--', typeof data)
+  }catch(err) {
+    console.log(message,'???--222', typeof message)
+  }
+});
+
+client.connect()
+
+onBeforeUnmount(()=>{
+  client.close()
+})
 
 const emits = defineEmits(['closeDialog', 'setCurrentListData', 'setSearchListData'])
 const props = defineProps({
@@ -106,6 +136,10 @@ const submit = async () => {
 const onCloseDialog = () =>{
   emits('closeDialog')
 }
+
+const captureImage = (source: string) => {
+  client.send({source})
+}
 </script>
 
 <template>
@@ -119,7 +153,7 @@ const onCloseDialog = () =>{
       </el-form-item>
       <el-form-item label="卡片封面" :label-width="formLabelWidth">
         <el-input v-model="form.img" autocomplete="off" />
-        <UploadImage :imageUrl="form.img" :setImageUrl="setImageUrl" />
+        <UploadImage :imageUrl="form.img" :setImageUrl="setImageUrl" @captureImage="captureImage" source="img" />
       </el-form-item>
       <el-form-item label="厂商" :label-width="formLabelWidth">
         <el-input v-model="form.factory" autocomplete="off" />
@@ -129,7 +163,7 @@ const onCloseDialog = () =>{
       </el-form-item>
       <el-form-item label="简介封面" :label-width="formLabelWidth">
         <el-input v-model="form.banner" autocomplete="off" />
-        <UploadImage :imageUrl="form.banner" :setImageUrl="setBannerUrl" />
+        <UploadImage :imageUrl="form.banner" :setImageUrl="setBannerUrl" @captureImage="captureImage" source="banner" />
       </el-form-item>
       <el-form-item label="简介内容" :label-width="formLabelWidth">
         <el-input v-model="form.about" autocomplete="off" type="textarea" :rows="2" />

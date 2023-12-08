@@ -3,8 +3,10 @@ import { ref, toRefs } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Close } from '@element-plus/icons-vue'
 
+const emits = defineEmits(['captureImage'])
 const props = withDefaults(defineProps<{
   imageUrl: string,
+  source: string,
   setImageUrl: Function
 }>(), {
   imageUrl: '',
@@ -13,7 +15,7 @@ const props = withDefaults(defineProps<{
 const previewVisible = ref(false)
 const imageTitle = ref('')
 
-const { imageUrl } = toRefs(props)
+const { imageUrl, source } = toRefs(props)
 
 window.electronAPI.pathBasename(imageUrl.value).then((res: string)=>{
   imageTitle.value = res
@@ -41,12 +43,16 @@ const handleSelect = ()=>{
   })
 }
 
+const handleCapture = () => {
+  emits('captureImage', source.value)
+}
 </script>
 
 <template>
   <div class="upload-image">
     <div class="upload-image-wrap">
       <el-button type="primary" @click="handleSelect">选择图片</el-button>
+      <el-button type="primary" @click="handleCapture">截图</el-button>
       <div class="image-list" v-if="imageUrl">
         <div class="image-list-wrap" @click="handlePreview">
           <el-icon class="image-file"><Document /></el-icon>

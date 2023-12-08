@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview --port 8080",
+    "preview": "vite preview --port 76589",
     "start": "vite build --emptyOutDir",
     "check": "tsc --noEmit --watch"
   },
