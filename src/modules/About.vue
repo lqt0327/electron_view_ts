@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Delete, Star, Position, Back, Edit } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useCardStore } from '../store/store'
-import { useRoute } from 'vue-router'
-import EditDialog from '../components/edit-dialog/index.vue'
+import Quill from 'quill'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 
-const route = useRoute()
+let quill_view: Quill;
+let quill_edit: Quill;
 
-const targetId = route.query.id
 const store = useCardStore()
-const { setCardData } = store
+const { setAbout } = store
 const {nowCardData} = storeToRefs(store)
 
 const goBack = () => {
@@ -34,13 +35,80 @@ const startEXE = () => {
   }
 }
 
-const dialogFormVisible = ref(false)
+const editFlag = ref(false)
+const handleSave = () => {
+  editFlag.value = false
+  const about = quill_edit.getContents()
+  setAbout(JSON.stringify(about))
+  initQuill(0)
+}
 const editCard = ()=>{
-  dialogFormVisible.value = true
+  editFlag.value = true
+  initQuill(1)
 }
-const closeDialog = () => {
-  dialogFormVisible.value = false
+
+const toolbarOptions = [
+  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+  ['blockquote', 'code-block', 'image', 'link', 'video'],
+
+  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+  [{ 'direction': 'rtl' }],                         // text direction
+
+  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+  [{ 'font': [] }],
+  [{ 'align': [] }],
+
+  ['clean']                                         // remove formatting button
+];
+
+const initQuill = (type: number) => {
+  if(!quill_edit) {
+    quill_edit = new Quill('#page-editor-about-edit', {
+      readOnly: false,
+      modules: {
+        toolbar: toolbarOptions
+      },
+      // placeholder: '请输入...',
+      theme: 'snow'  // or 'bubble'
+    });
+  }
+  if(!quill_view) {
+    quill_view = new Quill('#page-editor-about-view', {
+      readOnly: true,
+      modules: {
+        toolbar: false
+      },
+      theme: 'bubble'
+    });
+  }
+  
+  const about = nowCardData.value.about
+  if(type === 1) {
+    editFlag.value = true
+  }else {
+    editFlag.value = false
+  }
+  
+  try {
+    const data = JSON.parse(about)
+    if(type === 1) {
+      quill_edit.setContents(data)
+    }else {
+      quill_view.setContents(data)
+    }
+  }catch (err) {
+    console.log(err)
+  }
+  
 }
+
+onMounted(()=>{
+  initQuill(0)
+})
 
 </script>
 
@@ -49,13 +117,15 @@ const closeDialog = () => {
     <div class="about-header">
       <div class="header-back" @click="goBack"><el-icon><Back /></el-icon><div class="header-back-text">Back</div></div>
       <div class="header-title">{{ nowCardData.title_cn }}</div>
+      <el-button type="primary" class="header-save" v-if="editFlag" @click="handleSave">保存</el-button>
     </div>
 
     <div class="about-container">
-      <div class="about-banner">
-        <img class="about-banner-image" :src="nowCardData.banner" alt="">
+      <div class="about-wrap" v-show="editFlag">
+        <div id="page-editor-about-edit"></div>
       </div>
-      <div class="about-desc" v-html="nowCardData.about">
+      <div class="about-wrap" v-show="!editFlag">
+        <div id="page-editor-about-view"></div>
       </div>
       <div class="about-options">
         <el-button 
@@ -71,8 +141,6 @@ const closeDialog = () => {
         <el-button class="about-options__item" title="删除" type="danger" :icon="Delete" circle />
       </div>
     </div>
-
-    <EditDialog :setCardData="setCardData" :nowCardData="nowCardData" v-if="dialogFormVisible" @closeDialog="closeDialog" type="edit"/>
   </div>
 </template>
 
@@ -92,6 +160,10 @@ const closeDialog = () => {
   align-items: center;
   padding-left: 10px;
   background-color: #fff;
+  .header-save {
+    position: absolute;
+    right: 20px;
+  }
   .header-back {
     display: flex;
     align-items: center;
@@ -119,27 +191,7 @@ const closeDialog = () => {
   align-items: center;
   padding-top: 50px;
   padding-bottom: 30px;
-  .about-banner {
-    margin-top: 30px;
-    width: 600px;
-    padding: 20px;
-    box-sizing: border-box;
-    border-radius: 5px;
-    background-color: var(--background-color-card);
-    .about-banner-image {
-      width: 100%;
-      border-radius: 2px;
-      box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
-    }
-  }
-  .about-desc {
-    width: 600px;
-    margin-top: 20px;
-    padding: 20px;
-    box-sizing: border-box;
-    background-color: var(--background-color-card);
-    border-radius: 5px;
-  }
+  background-color: var(--background-color-default);
   .about-options {
     position: fixed;
     bottom: 50px;
@@ -155,5 +207,11 @@ const closeDialog = () => {
       margin-left: 0;
     }
   }
+}
+.about-wrap {
+  width: 100%;
+}
+#page-editor-about-edit, #page-editor-about-view {
+  width: 100%;
 }
 </style>
