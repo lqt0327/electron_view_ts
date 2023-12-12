@@ -14,6 +14,7 @@ export const useCardStore = defineStore('cardContent', {
             src: '',
             tags: [''],
             title_cn: '',
+            _id: '',
         },
     }),
     getters: {

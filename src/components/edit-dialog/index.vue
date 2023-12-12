@@ -4,10 +4,9 @@ import UploadImage from '../upload-image/index.vue'
 import StartLink from '../start-link/index.vue'
 import { useOptionStore } from '../../store/store'
 import WebSocketClient from '../../utils/ws'
-import Quill from 'quill'
-import 'quill/dist/quill.snow.css'
+import Quill from '../quill/index.vue'
 
-let quill: Quill;
+const quillRef = ref()
 
 const client = new WebSocketClient({
   url: 'ws://localhost:56743/capture_view',
@@ -96,10 +95,8 @@ const setStartLink = (url: string) => {
 }
 
 const submit = async () => {
-  if(quill) {
-    const about = quill.getContents()
-    form.about = JSON.stringify(about)
-  }
+  const data = quillRef.value.getData(1)
+  form.about = data
 
   if(type.value === 'create') {
     const id = await window.electronAPI.encodeById(form.title)
@@ -149,45 +146,6 @@ const captureImage = (source: string) => {
   client.send({source})
 }
 
-const toolbarOptions = [
-  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-  ['blockquote', 'code-block', 'image', 'link', 'video'],
-
-  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-  [{ 'direction': 'rtl' }],                         // text direction
-
-  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-  [{ 'font': [] }],
-  [{ 'align': [] }],
-
-  ['clean']                                         // remove formatting button
-];
-
-nextTick(()=>{
-  quill = new Quill('#dialog-editor-about', {
-    modules: {
-      toolbar: toolbarOptions
-    },
-    placeholder: '请输入...',
-    theme: 'snow'  // or 'bubble'
-  });
-  try {
-    const about = JSON.parse(form.about)
-    console.log(about)
-    quill.setContents(about)
-  }catch (err) {
-    console.log(err)
-  }
-})
-
-const test = () => {
-  const d = quill.getContents();
-  console.log(d,'?>>>>>', typeof d)
-}
 </script>
 
 <template>
@@ -215,9 +173,11 @@ const test = () => {
       </el-form-item>
       <el-form-item label="简介内容" :label-width="formLabelWidth">
         <!-- <el-input v-model="form.about" autocomplete="off" type="textarea" :rows="2" /> -->
-        <div id="dialog-editor-about">
-        </div>
-        <button @click="test">测试数据</button>
+        <Quill
+        :initData="form.about"
+        :type="1"
+        ref="quillRef"
+        ></Quill>
       </el-form-item>
       <el-form-item label="启动链接" :label-width="formLabelWidth">
         <el-input v-model="form.startLink" autocomplete="off" />

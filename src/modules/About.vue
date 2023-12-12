@@ -3,12 +3,7 @@ import { ref, onMounted } from 'vue'
 import { Delete, Star, Position, Back, Edit } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useCardStore } from '../store/store'
-import Quill from 'quill'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
-let quill_view: Quill;
-let quill_edit: Quill;
+import Quill from '../components/quill/index.vue'
 
 const store = useCardStore()
 const { setAbout } = store
@@ -35,81 +30,21 @@ const startEXE = () => {
   }
 }
 
-const editFlag = ref(false)
-const handleSave = () => {
-  editFlag.value = false
-  const about = quill_edit.getContents()
-  setAbout(JSON.stringify(about))
-  initQuill(0)
+const quillRef = ref()
+const quill_type = ref(0)
+const handleSave = async () => {
+  const data = quillRef.value.getData(1)
+  setAbout(data)
+  try {
+    await window.electronAPI.updateQuickLinkData(nowCardData.value._id, JSON.stringify(nowCardData.value))
+  }catch(err) {
+    console.error('更新卡片出错：', err)
+  }
+  quill_type.value = 0
 }
 const editCard = ()=>{
-  editFlag.value = true
-  initQuill(1)
+  quill_type.value = 1
 }
-
-const toolbarOptions = [
-  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-  ['blockquote', 'code-block', 'image', 'link', 'video'],
-
-  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-  [{ 'direction': 'rtl' }],                         // text direction
-
-  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-  [{ 'font': [] }],
-  [{ 'align': [] }],
-
-  ['clean']                                         // remove formatting button
-];
-
-const initQuill = (type: number) => {
-  if(!quill_edit) {
-    quill_edit = new Quill('#page-editor-about-edit', {
-      readOnly: false,
-      modules: {
-        toolbar: toolbarOptions
-      },
-      // placeholder: '请输入...',
-      theme: 'snow'  // or 'bubble'
-    });
-  }
-  if(!quill_view) {
-    quill_view = new Quill('#page-editor-about-view', {
-      readOnly: true,
-      modules: {
-        toolbar: false
-      },
-      theme: 'bubble'
-    });
-  }
-  
-  const about = nowCardData.value.about
-  if(type === 1) {
-    editFlag.value = true
-  }else {
-    editFlag.value = false
-  }
-  
-  try {
-    const data = JSON.parse(about)
-    if(type === 1) {
-      quill_edit.setContents(data)
-    }else {
-      quill_view.setContents(data)
-    }
-  }catch (err) {
-    console.log(err)
-  }
-  
-}
-
-onMounted(()=>{
-  initQuill(0)
-})
-
 </script>
 
 <template>
@@ -117,16 +52,15 @@ onMounted(()=>{
     <div class="about-header">
       <div class="header-back" @click="goBack"><el-icon><Back /></el-icon><div class="header-back-text">Back</div></div>
       <div class="header-title">{{ nowCardData.title_cn }}</div>
-      <el-button type="primary" class="header-save" v-if="editFlag" @click="handleSave">保存</el-button>
+      <el-button type="primary" class="header-save" v-if="quill_type === 1" @click="handleSave">保存</el-button>
     </div>
 
     <div class="about-container">
-      <div class="about-wrap" v-show="editFlag">
-        <div id="page-editor-about-edit"></div>
-      </div>
-      <div class="about-wrap" v-show="!editFlag">
-        <div id="page-editor-about-view"></div>
-      </div>
+      <Quill
+      :initData="nowCardData.about"
+      :type="quill_type"
+      ref="quillRef"
+      ></Quill>
       <div class="about-options">
         <el-button 
           class="about-options__item" 
