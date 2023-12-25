@@ -4,6 +4,7 @@ import { Delete, Star, Position, Back, Edit } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useCardStore } from '../store/store'
 import Quill from '../components/quill/index.vue'
+import Marked from '../components/marked/index.vue'
 
 const store = useCardStore()
 const { setAbout } = store
@@ -56,6 +57,7 @@ const editCard = ()=>{
     </div>
 
     <div class="about-container">
+      <Marked></Marked>
       <Quill
       :initData="nowCardData.about"
       :type="quill_type"

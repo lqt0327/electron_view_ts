@@ -62,13 +62,26 @@ const initQuill = (type: number) => {
   const about = initData.value
   
   try {
+    /**处理delta结构数据 */
     const data = JSON.parse(about)
     if(type === 1) {
       quill_edit.setContents(data)
     }else {
       quill_view.setContents(data)
     }
+    /**处理delta结构数据 */
   }catch (err) {
+    /**处理html结构数据 */
+    if(type === 1) {
+      var delta = quill_edit.clipboard.convert(about);
+      console.log(delta)
+      quill_edit.setContents(delta)
+    }else {
+      var delta = quill_view.clipboard.convert(about);
+      console.log(delta)
+      quill_view.setContents(delta)
+    }
+    /**处理html结构数据 */
     console.log(err)
   }
 }
@@ -92,6 +105,7 @@ watch(type, (newValue, oldValue) => {
 
 onMounted(()=>{
   initQuill(type.value)
+  console.log(initData.value,'???>>>')
 })
 </script>
 

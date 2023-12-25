@@ -44,6 +44,15 @@ declare namespace ResponseParam {
     status: status,
     result: QuickLinkDataItem[],
   }
+
+  interface FileResult {
+    status: status;
+    result: FileData
+  }
+
+  interface FileData {
+    url: string;
+  }
 }
 
 interface collectListParam {
