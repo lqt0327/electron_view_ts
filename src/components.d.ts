@@ -13,6 +13,7 @@ declare module '@vue/runtime-core' {
     DatabaseDialog: typeof import('./components/database-dialog/index.vue')['default']
     EditDialog: typeof import('./components/edit-dialog/index.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDropdown: typeof import('element-plus/es')['ElDropdown']
     ElDropdownItem: typeof import('element-plus/es')['ElDropdownItem']
