@@ -31,7 +31,7 @@ const change = () => {
   viewer.value = !viewer.value
 }
 
-const value = ref('#')
+const title = ref('')
 const titles = [
   {
     value: '#',
@@ -46,6 +46,9 @@ const titles = [
     label: '标题三(小)',
   },
 ]
+const updateTitleSize = (val: string) => {
+  updateMD(`${val} 示例文本`)
+}
 
 const color = ref('#000000')
 const predefineColors = ref([
@@ -92,8 +95,8 @@ const updateMD = (content: string) => {
         
         <button class="toolbar-button icon-list-numbered" @click="updateMD('1. 第一项\n2. 第二项\n    1. 子项1')"></button>
         <button class="toolbar-button icon-list2" @click="updateMD('- 第一项\n- 第二项\n    - 子项1')"></button>
-        <button class="toolbar-button icon-indent-decrease"></button>
-        <button class="toolbar-button icon-indent-increase"></button>
+        <!-- <button class="toolbar-button icon-indent-decrease"></button> -->
+        <!-- <button class="toolbar-button icon-indent-increase"></button> -->
         <button class="toolbar-button icon-paragraph-left"></button>
         <button class="toolbar-button icon-paragraph-center"></button>
         <button class="toolbar-button icon-paragraph-right"></button>
@@ -101,7 +104,7 @@ const updateMD = (content: string) => {
         <el-color-picker v-model="color" show-alpha :predefine="predefineColors" size="small" @change="changeColor" />
       </div>
       <div class="toolbar-wrap">
-        <el-select v-model="value" placeholder="Select">
+        <el-select v-model="title" placeholder="请选择标题" @change="updateTitleSize">
           <el-option
             v-for="item in titles"
             :key="item.value"
